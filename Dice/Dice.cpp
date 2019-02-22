@@ -20,6 +20,7 @@
  * You should have received a copy of the GNU Affero General Public License along with this
  * program. If not, see <http://www.gnu.org/licenses/>.
  */
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <string>
 #include <iostream>
@@ -137,7 +138,7 @@ map<SourceType, PropType> CharacterProp;
 multimap<long long, long long> ObserveGroup;
 multimap<long long, long long> ObserveDiscuss;
 string strFileLoc;
-EVE_Enable(__eventEnable)
+EVE_Enable(eventEnable)
 {
 	//Wait until the thread terminates
 	while (msgSendThreadRunning)
@@ -321,7 +322,7 @@ EVE_Enable(__eventEnable)
 }
 
 
-EVE_PrivateMsg_EX(__eventPrivateMsg)
+EVE_PrivateMsg_EX(eventPrivateMsg)
 {
 	if (eve.isSystem())return;
 	init(eve.message);
@@ -1019,7 +1020,7 @@ EVE_PrivateMsg_EX(__eventPrivateMsg)
 				AddMsgToQueue(GlobalMsg["strSetInvalid"], eve.fromQQ);
 				return;
 			}
-		if (strDefaultDice.length() > 3 && strDefaultDice!= "1000")
+		if (strDefaultDice.length() > 5)
 		{
 			AddMsgToQueue(GlobalMsg["strSetTooBig"], eve.fromQQ);
 			return;
@@ -1147,35 +1148,15 @@ EVE_PrivateMsg_EX(__eventPrivateMsg)
 	{
 		intMsgCnt += 2;
 		string strSkillName;
-		string strMainDice = "D100";
-		string strSkillModify;
-		int intSkillModify = 0;
-		if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b') {
-			strMainDice = strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while(isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strMainDice += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
 			isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && strLowerMessage[intMsgCnt] != '=' && strLowerMessage[intMsgCnt] !=
-			':' && strLowerMessage[intMsgCnt] != '+' && strLowerMessage[intMsgCnt] != '-')
+			':')
 		{
 			strSkillName += strLowerMessage[intMsgCnt];
 			intMsgCnt++;
 		}
 		if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-		if (strLowerMessage[intMsgCnt] == '+' || strLowerMessage[intMsgCnt] == '-') {
-			strSkillModify += strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strSkillModify += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			intSkillModify = stoi(strSkillModify);
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '=' || strLowerMessage[intMsgCnt] ==
 			':')intMsgCnt++;
 		string strSkillVal;
@@ -1216,27 +1197,13 @@ EVE_PrivateMsg_EX(__eventPrivateMsg)
 		{
 			intSkillVal = stoi(strSkillVal);
 		}
-		int intFianlSkillVal = intSkillVal + intSkillModify;
-		RD rdMainDice(strMainDice, eve.fromQQ);
-		const int intFirstTimeRes = rdMainDice.Roll(); 
-		if (intFirstTimeRes == ZeroDice_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strZeroDiceErr"], eve.fromQQ);
-			return;
-		}
-		if (intFirstTimeRes == DiceTooBig_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strDiceTooBigErr"], eve.fromQQ);
-			return;
-		}
-		const int intD100Res = rdMainDice.intTotal;
-		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: "+ rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) +" ";
-		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
+		const int intD100Res = RandomGenerator::Randint(1, 100);
+		string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
+			to_string(intSkillVal) + " ";
+		if (intD100Res <= 5)strReply += "大成功";
+		else if (intD100Res <= intSkillVal / 5)strReply += "极难成功";
+		else if (intD100Res <= intSkillVal / 2)strReply += "困难成功";
+		else if (intD100Res <= intSkillVal)strReply += "成功";
 		else if (intD100Res <= 95)strReply += "失败";
 		else strReply += "大失败";
 		if (!strReason.empty())
@@ -1249,35 +1216,15 @@ EVE_PrivateMsg_EX(__eventPrivateMsg)
 	{
 		intMsgCnt += 2;
 		string strSkillName;
-		string strMainDice = "D100";
-		string strSkillModify;
-		int intSkillModify = 0;
-		if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b') {
-			strMainDice = strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strMainDice += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
 			isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && strLowerMessage[intMsgCnt] != '=' && strLowerMessage[intMsgCnt] !=
-			':' && strLowerMessage[intMsgCnt] != '+' && strLowerMessage[intMsgCnt] != '-')
+			':')
 		{
 			strSkillName += strLowerMessage[intMsgCnt];
 			intMsgCnt++;
 		}
 		if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-		if (strLowerMessage[intMsgCnt] == '+' || strLowerMessage[intMsgCnt] == '-') {
-			strSkillModify += strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strSkillModify += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			intSkillModify = stoi(strSkillModify);
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '=' || strLowerMessage[intMsgCnt] ==
 			':')intMsgCnt++;
 		string strSkillVal;
@@ -1318,29 +1265,14 @@ EVE_PrivateMsg_EX(__eventPrivateMsg)
 		{
 			intSkillVal = stoi(strSkillVal);
 		}
-
-		int intFianlSkillVal = intSkillVal + intSkillModify;
-		RD rdMainDice(strMainDice, eve.fromQQ);
-		const int intFirstTimeRes = rdMainDice.Roll();
-		if (intFirstTimeRes == ZeroDice_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strZeroDiceErr"], eve.fromQQ);
-			return;
-		}
-		if (intFirstTimeRes == DiceTooBig_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strDiceTooBigErr"], eve.fromQQ);
-			return;
-		}
-		const int intD100Res = rdMainDice.intTotal;
-		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) + " ";
+		const int intD100Res = RandomGenerator::Randint(1, 100);
+		string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
+			to_string(intSkillVal) + " ";
 		if (intD100Res == 1)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95 || intFianlSkillVal >= 50 )strReply += "失败";
+		else if (intD100Res <= intSkillVal / 5)strReply += "极难成功";
+		else if (intD100Res <= intSkillVal / 2)strReply += "困难成功";
+		else if (intD100Res <= intSkillVal)strReply += "成功";
+		else if (intD100Res <= 95 || (intSkillVal >= 50 && intD100Res != 100))strReply += "失败";
 		else strReply += "大失败";
 		if (!strReason.empty())
 		{
@@ -1551,7 +1483,7 @@ EVE_PrivateMsg_EX(__eventPrivateMsg)
 	}
 }
 
-EVE_GroupMsg_EX(__eventGroupMsg)
+EVE_GroupMsg_EX(eventGroupMsg)
 {
 	if (eve.isSystem() || eve.isAnonymous())return;
 	init(eve.message);
@@ -2805,7 +2737,7 @@ EVE_GroupMsg_EX(__eventGroupMsg)
 				AddMsgToQueue(GlobalMsg["strSetInvalid"], eve.fromGroup, false);
 				return;
 			}
-		if (strDefaultDice.length() > 3 && strDefaultDice != "1000")
+		if (strDefaultDice.length() > 5)
 		{
 			AddMsgToQueue(GlobalMsg["strSetTooBig"], eve.fromGroup, false);
 			return;
@@ -2933,35 +2865,15 @@ EVE_GroupMsg_EX(__eventGroupMsg)
 	{
 		intMsgCnt += 2;
 		string strSkillName;
-		string strMainDice = "D100";
-		string strSkillModify;
-		int intSkillModify = 0;
-		if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b') {
-			strMainDice = strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strMainDice += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
 			isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && strLowerMessage[intMsgCnt] != '=' && strLowerMessage[intMsgCnt] !=
-			':'&& strLowerMessage[intMsgCnt] != '+' && strLowerMessage[intMsgCnt] != '-')
+			':')
 		{
 			strSkillName += strLowerMessage[intMsgCnt];
 			intMsgCnt++;
 		}
 		if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-		if (strLowerMessage[intMsgCnt] == '+' || strLowerMessage[intMsgCnt] == '-') {
-			strSkillModify += strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strSkillModify += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			intSkillModify = stoi(strSkillModify);
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '=' || strLowerMessage[intMsgCnt] ==
 			':')intMsgCnt++;
 		string strSkillVal;
@@ -3002,27 +2914,13 @@ EVE_GroupMsg_EX(__eventGroupMsg)
 		{
 			intSkillVal = stoi(strSkillVal);
 		}
-		int intFianlSkillVal = intSkillVal + intSkillModify;
-		RD rdMainDice(strMainDice, eve.fromQQ);
-		const int intFirstTimeRes = rdMainDice.Roll();
-		if (intFirstTimeRes == ZeroDice_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strZeroDiceErr"], eve.fromGroup, false);
-			return;
-		}
-		if (intFirstTimeRes == DiceTooBig_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strDiceTooBigErr"], eve.fromGroup, false);
-			return;
-		}
-		const int intD100Res = rdMainDice.intTotal;
-		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) + "(修正" + to_string(intSkillModify) + ")" + " ";
-		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
+		const int intD100Res = RandomGenerator::Randint(1, 100);
+		string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
+			to_string(intSkillVal) + " ";
+		if (intD100Res <= 5)strReply += "大成功";
+		else if (intD100Res <= intSkillVal / 5)strReply += "极难成功";
+		else if (intD100Res <= intSkillVal / 2)strReply += "困难成功";
+		else if (intD100Res <= intSkillVal)strReply += "成功";
 		else if (intD100Res <= 95)strReply += "失败";
 		else strReply += "大失败";
 		if (!strReason.empty())
@@ -3035,35 +2933,15 @@ EVE_GroupMsg_EX(__eventGroupMsg)
 	{
 		intMsgCnt += 2;
 		string strSkillName;
-		string strMainDice = "D100";
-		string strSkillModify;
-		int intSkillModify = 0;
-		if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b') {
-			strMainDice = strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strMainDice += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
 			isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && strLowerMessage[intMsgCnt] != '=' && strLowerMessage[intMsgCnt] !=
-			':' && strLowerMessage[intMsgCnt] != '+' && strLowerMessage[intMsgCnt] != '-')
+			':')
 		{
 			strSkillName += strLowerMessage[intMsgCnt];
 			intMsgCnt++;
 		}
 		if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-		if (strLowerMessage[intMsgCnt] == '+' || strLowerMessage[intMsgCnt] == '-') {
-			strSkillModify += strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strSkillModify += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			intSkillModify = stoi(strSkillModify);
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '=' || strLowerMessage[intMsgCnt] ==
 			':')intMsgCnt++;
 		string strSkillVal;
@@ -3104,28 +2982,14 @@ EVE_GroupMsg_EX(__eventGroupMsg)
 		{
 			intSkillVal = stoi(strSkillVal);
 		}
-		int intFianlSkillVal = intSkillVal + intSkillModify;
-		RD rdMainDice(strMainDice, eve.fromQQ);
-		const int intFirstTimeRes = rdMainDice.Roll();
-		if (intFirstTimeRes == ZeroDice_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strZeroDiceErr"], eve.fromGroup, false);
-			return;
-		}
-		if (intFirstTimeRes == DiceTooBig_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strDiceTooBigErr"], eve.fromGroup, false);
-			return;
-		}
-		const int intD100Res = rdMainDice.intTotal;
-		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) + " ";
+		const int intD100Res = RandomGenerator::Randint(1, 100);
+		string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
+			to_string(intSkillVal) + " ";
 		if (intD100Res == 1)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95)strReply += "失败";
+		else if (intD100Res <= intSkillVal / 5)strReply += "极难成功";
+		else if (intD100Res <= intSkillVal / 2)strReply += "困难成功";
+		else if (intD100Res <= intSkillVal)strReply += "成功";
+		else if (intD100Res <= 95 || (intSkillVal >= 50 && intD100Res != 100))strReply += "失败";
 		else strReply += "大失败";
 		if (!strReason.empty())
 		{
@@ -3396,7 +3260,7 @@ EVE_GroupMsg_EX(__eventGroupMsg)
 	}
 }
 
-EVE_DiscussMsg_EX(__eventDiscussMsg)
+EVE_DiscussMsg_EX(eventDiscussMsg)
 {
 	if (eve.isSystem())return;
 	init(eve.message);
@@ -4500,7 +4364,7 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 				AddMsgToQueue(GlobalMsg["strSetInvalid"], eve.fromDiscuss, false);
 				return;
 			}
-		if (strDefaultDice.length() > 3 && strDefaultDice !="1000" )
+		if (strDefaultDice.length() > 5)
 		{
 			AddMsgToQueue(GlobalMsg["strSetTooBig"], eve.fromDiscuss, false);
 			return;
@@ -4628,35 +4492,15 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 	{
 		intMsgCnt += 2;
 		string strSkillName;
-		string strMainDice = "D100";
-		string strSkillModify;
-		int intSkillModify = 0;
-		if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b') {
-			strMainDice = strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strMainDice += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
 			isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && strLowerMessage[intMsgCnt] != '=' && strLowerMessage[intMsgCnt] !=
-			':' && strLowerMessage[intMsgCnt] != '+' && strLowerMessage[intMsgCnt] != '-')
+			':')
 		{
 			strSkillName += strLowerMessage[intMsgCnt];
 			intMsgCnt++;
 		}
 		if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-		if (strLowerMessage[intMsgCnt] == '+' || strLowerMessage[intMsgCnt] == '-') {
-			strSkillModify += strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strSkillModify += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			intSkillModify = stoi(strSkillModify);
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '=' || strLowerMessage[intMsgCnt] ==
 			':')intMsgCnt++;
 		string strSkillVal;
@@ -4697,27 +4541,13 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 		{
 			intSkillVal = stoi(strSkillVal);
 		}
-		int intFianlSkillVal = intSkillVal + intSkillModify;
-		RD rdMainDice(strMainDice, eve.fromQQ);
-		const int intFirstTimeRes = rdMainDice.Roll();
-		if (intFirstTimeRes == ZeroDice_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strZeroDiceErr"], eve.fromDiscuss, false);
-			return;
-		}
-		if (intFirstTimeRes == DiceTooBig_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strDiceTooBigErr"], eve.fromDiscuss, false);
-			return;
-		}
-		const int intD100Res = rdMainDice.intTotal;
-		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) + " ";
-		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
+		const int intD100Res = RandomGenerator::Randint(1, 100);
+		string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
+			to_string(intSkillVal) + " ";
+		if (intD100Res <= 5)strReply += "大成功";
+		else if (intD100Res <= intSkillVal / 5)strReply += "极难成功";
+		else if (intD100Res <= intSkillVal / 2)strReply += "困难成功";
+		else if (intD100Res <= intSkillVal)strReply += "成功";
 		else if (intD100Res <= 95)strReply += "失败";
 		else strReply += "大失败";
 		if (!strReason.empty())
@@ -4730,17 +4560,6 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 	{
 		intMsgCnt += 2;
 		string strSkillName;
-		string strMainDice = "D100";
-		string strSkillModify;
-		int intSkillModify = 0;
-		if (strLowerMessage[intMsgCnt] == 'p' || strLowerMessage[intMsgCnt] == 'b') {
-			strMainDice = strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strMainDice += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))intMsgCnt++;
 		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !
 			isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && strLowerMessage[intMsgCnt] != '=' && strLowerMessage[intMsgCnt] !=
@@ -4750,15 +4569,6 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 			intMsgCnt++;
 		}
 		if (SkillNameReplace.count(strSkillName))strSkillName = SkillNameReplace[strSkillName];
-		if (strLowerMessage[intMsgCnt] == '+' || strLowerMessage[intMsgCnt] == '-') {
-			strSkillModify += strLowerMessage[intMsgCnt];
-			intMsgCnt++;
-			while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-				strSkillModify += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			intSkillModify = stoi(strSkillModify);
-		}
 		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) || strLowerMessage[intMsgCnt] == '=' || strLowerMessage[intMsgCnt] ==
 			':')intMsgCnt++;
 		string strSkillVal;
@@ -4799,28 +4609,14 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 		{
 			intSkillVal = stoi(strSkillVal);
 		}
-		int intFianlSkillVal = intSkillVal + intSkillModify;
-		RD rdMainDice(strMainDice, eve.fromQQ);
-		const int intFirstTimeRes = rdMainDice.Roll();
-		if (intFirstTimeRes == ZeroDice_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strZeroDiceErr"], eve.fromDiscuss, false);
-			return;
-		}
-		if (intFirstTimeRes == DiceTooBig_Err)
-		{
-			AddMsgToQueue(GlobalMsg["strDiceTooBigErr"], eve.fromDiscuss, false);
-			return;
-		}
-		const int intD100Res = rdMainDice.intTotal;
-		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) + " ";
+		const int intD100Res = RandomGenerator::Randint(1, 100);
+		string strReply = strNickName + "进行" + strSkillName + "检定: D100=" + to_string(intD100Res) + "/" +
+			to_string(intSkillVal) + " ";
 		if (intD100Res == 1)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95 || intFianlSkillVal >= 50)strReply += "失败";
+		else if (intD100Res <= intSkillVal / 5)strReply += "极难成功";
+		else if (intD100Res <= intSkillVal / 2)strReply += "困难成功";
+		else if (intD100Res <= intSkillVal)strReply += "成功";
+		else if (intD100Res <= 95 || (intSkillVal >= 50 && intD100Res != 100))strReply += "失败";
 		else strReply += "大失败";
 		if (!strReason.empty())
 		{
@@ -5091,7 +4887,7 @@ EVE_DiscussMsg_EX(__eventDiscussMsg)
 	}
 }
 
-EVE_System_GroupMemberIncrease(__eventGroupMemberIncrease)
+EVE_System_GroupMemberIncrease(eventGroupMemberIncrease)
 {
 	if (beingOperateQQ != getLoginQQ() && WelcomeMsg.count(fromGroup))
 	{
@@ -5126,7 +4922,7 @@ EVE_System_GroupMemberIncrease(__eventGroupMemberIncrease)
 	return 0;
 }
 
-EVE_Disable(__eventDisable)
+EVE_Disable(eventDisable)
 {
 	Enabled = false;
 	ilInitList.reset();
@@ -5255,7 +5051,7 @@ EVE_Disable(__eventDisable)
 	return 0;
 }
 
-EVE_Exit(__eventExit)
+EVE_Exit(eventExit)
 {
 	if (!Enabled)
 		return 0;
