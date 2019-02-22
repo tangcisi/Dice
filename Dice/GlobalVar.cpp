@@ -66,13 +66,13 @@ std::map<std::string, std::string> GlobalMsg
 {
 	{"strNameNumTooBig", "生成数量过多!请输入1-10之间的数字!"},
 	{"strNameNumCannotBeZero", "生成数量不能为零!请输入1-10之间的数字!"},
-	{"strSetInvalid", "无效的默认骰!请输入1-99999之间的数字!"},
-	{"strSetTooBig", "默认骰过大!请输入1-99999之间的数字!"},
-	{"strSetCannotBeZero", "默认骰不能为零!请输入1-99999之间的数字!"},
+	{"strSetInvalid", "无效的默认骰!请输入1-1000之间的数字!"},
+	{"strSetTooBig", "这面数……让我丢个球啊!请输入1-1000之间的数字!"},
+	{"strSetCannotBeZero", "默认骰不能为零!请输入1-1000之间的数字!"},
 	{"strCharacterCannotBeZero", "人物作成次数不能为零!请输入1-10之间的数字!"},
-	{"strSetInvalid", "无效的默认骰!请输入1-99999之间的数字!"},
-	{"strSetTooBig", "默认骰过大!请输入1-99999之间的数字!"},
-	{"strSetCannotBeZero", "默认骰不能为零!请输入1-99999之间的数字!"},
+	{"strSetInvalid", "无效的默认骰!请输入1-1000之间的数字!"},
+	{"strSetTooBig", "默认骰过大!请输入1-1000之间的数字!"},
+	{"strSetCannotBeZero", "默认骰不能为零!请输入1-1000之间的数字!"},
 	{"strCharacterCannotBeZero", "人物作成次数不能为零!请输入1-10之间的数字!"},
 	{"strCharacterTooBig", "人物作成次数过多!请输入1-10之间的数字!"},
 	{"strCharacterInvalid", "人物作成次数无效!请输入1-10之间的数字!"},
@@ -154,5 +154,5 @@ std::map<std::string, std::string> GlobalMsg
  支持使用K来取较大的几个骰子
  支持使用 个数#表达式 进行多轮掷骰
 **SC表达式为 成功扣San/失败扣San,如:1/1d6
-插件交流/bug反馈/查看源代码请加QQ群941980833或624807593(已满))"}
+**官方骰娘相关**/插件交流/bug反馈/查看源代码请加QQ群941980833或624807593(已满))"}
 };
