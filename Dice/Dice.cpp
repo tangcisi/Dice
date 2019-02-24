@@ -1218,6 +1218,11 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 			intSkillVal = stoi(strSkillVal);
 		}
 		int intFianlSkillVal = intSkillVal + intSkillModify;
+		if (intFianlSkillVal < 0 || intFianlSkillVal > 1000)
+		{
+			AddMsgToQueue(GlobalMsg["strSuccessRateErr"], eve.fromQQ);
+			return;
+		}
 		RD rdMainDice(strMainDice, eve.fromQQ);
 		const int intFirstTimeRes = rdMainDice.Roll(); 
 		if (intFirstTimeRes == ZeroDice_Err)
@@ -1321,6 +1326,11 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 		}
 
 		int intFianlSkillVal = intSkillVal + intSkillModify;
+		if (intFianlSkillVal < 0 || intFianlSkillVal > 1000)
+		{
+			AddMsgToQueue(GlobalMsg["strSuccessRateErr"], eve.fromQQ);
+			return;
+		}
 		RD rdMainDice(strMainDice, eve.fromQQ);
 		const int intFirstTimeRes = rdMainDice.Roll();
 		if (intFirstTimeRes == ZeroDice_Err)
@@ -3004,6 +3014,11 @@ EVE_GroupMsg_EX(eventGroupMsg)
 			intSkillVal = stoi(strSkillVal);
 		}
 		int intFianlSkillVal = intSkillVal + intSkillModify;
+		if (intFianlSkillVal < 0 || intFianlSkillVal > 1000)
+		{
+			AddMsgToQueue(GlobalMsg["strSuccessRateErr"], eve.fromGroup, false);
+			return;
+		}
 		RD rdMainDice(strMainDice, eve.fromQQ);
 		const int intFirstTimeRes = rdMainDice.Roll();
 		if (intFirstTimeRes == ZeroDice_Err)
@@ -3106,6 +3121,11 @@ EVE_GroupMsg_EX(eventGroupMsg)
 			intSkillVal = stoi(strSkillVal);
 		}
 		int intFianlSkillVal = intSkillVal + intSkillModify;
+		if (intFianlSkillVal < 0 || intFianlSkillVal > 1000)
+		{
+			AddMsgToQueue(GlobalMsg["strSuccessRateErr"], eve.fromGroup, false);
+			return;
+		}
 		RD rdMainDice(strMainDice, eve.fromQQ);
 		const int intFirstTimeRes = rdMainDice.Roll();
 		if (intFirstTimeRes == ZeroDice_Err)
@@ -4699,6 +4719,11 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 			intSkillVal = stoi(strSkillVal);
 		}
 		int intFianlSkillVal = intSkillVal + intSkillModify;
+		if (intFianlSkillVal < 0 || intFianlSkillVal > 1000)
+		{
+			AddMsgToQueue(GlobalMsg["strSuccessRateErr"], eve.fromDiscuss, false);
+			return;
+		}
 		RD rdMainDice(strMainDice, eve.fromQQ);
 		const int intFirstTimeRes = rdMainDice.Roll();
 		if (intFirstTimeRes == ZeroDice_Err)
@@ -4801,6 +4826,11 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 			intSkillVal = stoi(strSkillVal);
 		}
 		int intFianlSkillVal = intSkillVal + intSkillModify;
+		if (intFianlSkillVal < 0 || intFianlSkillVal > 1000)
+		{
+			AddMsgToQueue(GlobalMsg["strSuccessRateErr"], eve.fromDiscuss, false);
+			return;
+		}
 		RD rdMainDice(strMainDice, eve.fromQQ);
 		const int intFirstTimeRes = rdMainDice.Roll();
 		if (intFirstTimeRes == ZeroDice_Err)

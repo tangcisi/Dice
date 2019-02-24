@@ -79,6 +79,7 @@ std::map<std::string, std::string> GlobalMsg
 	{"strSCInvalid", "SC表达式输入不正确,格式为成功扣San/失败扣San,如1/1d6!"},
 	{"strSanInvalid", "San值输入不正确,请输入1-99范围内的整数!"},
 	{"strEnValInvalid", "技能值或属性输入不正确,请输入1-99范围内的整数!"},
+	{"strSuccessRateErr","这成功率还需要检定吗？"},
 	{"strGroupIDInvalid", "无效的群号!"},
 	{"strSendErr", "消息发送失败!"},
 	{"strDisabledErr", "命令无法执行:机器人已在此群中被关闭!"},
