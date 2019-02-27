@@ -106,7 +106,6 @@ std::string getName(long long QQ, long long GroupID = 0)
 
 map<long long, int> DefaultDice;
 map<long long, string> WelcomeMsg;
-map<long long, string> DefaultRule;
 set<long long> DisabledGroup;
 set<long long> DisabledDiscuss;
 set<long long> DisabledJRRPGroup;
@@ -824,36 +823,17 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 		intMsgCnt += 5;
 		while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt])))
 			intMsgCnt++;
-		if (strLowerMessage.substr(intMsgCnt, 3) == "set") {
-			intMsgCnt += 3;
-			while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt]))|| eve.message[intMsgCnt] == ':')
-				intMsgCnt++;
-			string strDefaultRule = eve.message.substr(intMsgCnt);
-			if (strDefaultRule.empty()) {
-				DefaultRule.erase(eve.fromQQ);
-				AddMsgToQueue(GlobalMsg["strRuleReset"], eve.fromQQ);
-			}
-			else {
-				DefaultRule[eve.fromQQ] = strDefaultRule;
-				AddMsgToQueue(GlobalMsg["strRuleSetwarning"], eve.fromQQ);
-			}
+		string strSearch = eve.message.substr(intMsgCnt);
+		for (auto& n : strSearch)
+			n = toupper(static_cast<unsigned char>(n));
+		string strReturn;
+		if (GetRule::analyze(strSearch, strReturn))
+		{
+			AddMsgToQueue(strReturn, eve.fromQQ);
 		}
-		else {
-			string strSearch = eve.message.substr(intMsgCnt);
-			string strDefaultRule = DefaultRule[eve.fromQQ];
-			for (auto& n : strSearch)
-				n = toupper(static_cast<unsigned char>(n));
-			string strReturn;
-			if (DefaultRule.count(eve.fromQQ) && strSearch.find(':') == string::npos && GetRule::get(strDefaultRule, strSearch, strReturn)) {
-				AddMsgToQueue(strReturn, eve.fromQQ);
-			}else if (GetRule::analyze(strSearch, strReturn))
-			{
-				AddMsgToQueue(strReturn, eve.fromQQ);
-			}
-			else
-			{
-				AddMsgToQueue(GlobalMsg["strRuleErr"] + strReturn, eve.fromQQ);
-			}
+		else
+		{
+			AddMsgToQueue(GlobalMsg["strRuleErr"] + strReturn, eve.fromQQ);
 		}
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 2) == "st")
@@ -2742,37 +2722,17 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		intMsgCnt += 5;
 		while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt])))
 			intMsgCnt++;
-		if (strLowerMessage.substr(intMsgCnt, 3) == "set") {
-			intMsgCnt += 3;
-			while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt])) || eve.message[intMsgCnt] == ':')
-				intMsgCnt++;
-			string strDefaultRule = eve.message.substr(intMsgCnt);
-			if (strDefaultRule.empty()) {
-				DefaultRule.erase(eve.fromQQ);
-				AddMsgToQueue(GlobalMsg["strRuleReset"], eve.fromGroup, false);
-			}
-			else {
-				DefaultRule[eve.fromQQ] = strDefaultRule;
-				AddMsgToQueue(GlobalMsg["strRuleSet"], eve.fromGroup, false);
-			}
+		string strSearch = eve.message.substr(intMsgCnt);
+		for (auto& n : strSearch)
+			n = toupper(static_cast<unsigned char>(n));
+		string strReturn;
+		if (GetRule::analyze(strSearch, strReturn))
+		{
+			AddMsgToQueue(strReturn, eve.fromGroup, false);
 		}
-		else {
-			string strSearch = eve.message.substr(intMsgCnt);
-			string strDefaultRule = DefaultRule[eve.fromQQ];
-			for (auto& n : strSearch)
-				n = toupper(static_cast<unsigned char>(n));
-			string strReturn;
-			if (DefaultRule.count(eve.fromQQ) && strSearch.find(':') == string::npos && GetRule::get(strDefaultRule, strSearch, strReturn)) {
-				AddMsgToQueue(strReturn, eve.fromGroup, false);
-			}
-			else if (GetRule::analyze(strSearch, strReturn))
-			{
-				AddMsgToQueue(strReturn, eve.fromGroup, false);
-			}
-			else
-			{
-				AddMsgToQueue(GlobalMsg["strRuleErr"] + strReturn, eve.fromGroup, false);
-			}
+		else
+		{
+			AddMsgToQueue(GlobalMsg["strRuleErr"] + strReturn, eve.fromGroup, false);
 		}
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 2) == "me")
@@ -3073,7 +3033,7 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		}
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
-			to_string(intFianlSkillVal) + " ";
+			to_string(intFianlSkillVal) + "(修正" + to_string(intSkillModify) + ")" + " ";
 		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
 		else if (intD100Res == 100)strReply += "大失败";
 		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
@@ -4481,37 +4441,17 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 		intMsgCnt += 5;
 		while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt])))
 			intMsgCnt++;
-		if (strLowerMessage.substr(intMsgCnt, 3) == "set") {
-			intMsgCnt += 3;
-			while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt])) || eve.message[intMsgCnt] == ':')
-				intMsgCnt++;
-			string strDefaultRule = eve.message.substr(intMsgCnt);
-			if (strDefaultRule.empty()) {
-				DefaultRule.erase(eve.fromQQ);
-				AddMsgToQueue(GlobalMsg["strRuleReset"], eve.fromDiscuss, false);
-			}
-			else {
-				DefaultRule[eve.fromQQ] = strDefaultRule;
-				AddMsgToQueue(GlobalMsg["strRuleSet"], eve.fromDiscuss, false);
-			}
+		string strSearch = eve.message.substr(intMsgCnt);
+		for (auto& n : strSearch)
+			n = toupper(static_cast<unsigned char>(n));
+		string strReturn;
+		if (GetRule::analyze(strSearch, strReturn))
+		{
+			AddMsgToQueue(strReturn, eve.fromDiscuss, false);
 		}
-		else {
-			string strSearch = eve.message.substr(intMsgCnt);
-			string strDefaultRule = DefaultRule[eve.fromQQ];
-			for (auto& n : strSearch)
-				n = toupper(static_cast<unsigned char>(n));
-			string strReturn;
-			if (DefaultRule.count(eve.fromQQ) && strSearch.find(':') == string::npos && GetRule::get(strDefaultRule, strSearch, strReturn)) {
-				AddMsgToQueue(strReturn, eve.fromDiscuss, false);
-			}
-			else if (GetRule::analyze(strSearch, strReturn))
-			{
-				AddMsgToQueue(strReturn, eve.fromDiscuss, false);
-			}
-			else
-			{
-				AddMsgToQueue(GlobalMsg["strRuleErr"] + strReturn, eve.fromDiscuss, false);
-			}
+		else
+		{
+			AddMsgToQueue(GlobalMsg["strRuleErr"] + strReturn, eve.fromDiscuss, false);
 		}
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 2) == "me")
