@@ -53,7 +53,7 @@ const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + __clang_version_
 #else
 
 #ifdef _MSC_VER
-const std::string Dice_Full_Ver = Dice_Short_Ver + " [MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__ + "]";
+const std::string Dice_Full_Ver = Dice_Short_Ver + "Edited+ by String.Empty" +" [MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__ + "]";
 #elif defined(__GNUC__)
 const std::string Dice_Full_Ver = Dice_Short_Ver + " [GNUC " + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__) + " " + __DATE__ + " " + __TIME__ + "]";
 #else
@@ -109,6 +109,8 @@ std::map<std::string, std::string> GlobalMsg
 	{"strPropErr", "请认真的输入你的属性哦~"},
 	{"strSetPropSuccess", "属性设置成功"},
 	{"strPropCleared", "已清除所有属性"},
+	{"strRuleReset","已重置默认规则"},
+	{"strRuleSet","已设置默认规则"},
 	{"strRuleErr", "规则数据获取失败,具体信息:\n"},
 	{"strRulesFailedErr", "请求失败,无法连接数据库"},
 	{"strPropDeleted", "属性删除成功"},
