@@ -46,6 +46,7 @@
 #include "NameGenerator.h"
 #include "MsgFormat.h"
 #include "DiceNetwork.h"
+#include "CardDeck.h"
 /*
 TODO:
 1. en可变成长检定
@@ -1381,6 +1382,55 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 		}
 		AddMsgToQueue(strReply, eve.fromQQ);
 	}
+	else if (strLowerMessage.substr(intMsgCnt, 4) == "draw") {
+
+	intMsgCnt += 4;
+	while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		intMsgCnt++;
+
+	string strDeckName;
+	while (!isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+	{
+		strDeckName += strLowerMessage[intMsgCnt];
+		intMsgCnt++;
+	}
+	while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		intMsgCnt++;
+	string strCardNum;
+	while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+	{
+		strCardNum += eve.message[intMsgCnt];
+		intMsgCnt++;
+	}
+	auto intCardNum = strCardNum.empty() ? 1 : stoi(strCardNum);
+	if (intCardNum == 0)
+	{
+		AddMsgToQueue(GlobalMsg["strNumCannotBeZero"], eve.fromQQ);
+		return;
+	}
+	int intDeckRes = CardDeck::findDeck(strDeckName);
+	string strReply;
+	if (intDeckRes < 0) {
+		strReply = strDeckName + "?" + GlobalMsg["strDeckNotFound"];
+		AddMsgToQueue(strReply, eve.fromQQ);
+		return;
+	}
+	vector<string>TempDeck(CardDeck::PublicDeck[intDeckRes]);
+	TempDeck.erase(TempDeck.begin());
+	strReply = "来看看" + strNickName + "的随机抽取结果:\n" + CardDeck::drawCard(TempDeck);
+	while (--intCardNum && TempDeck.size()) {
+		strReply += "\n"+CardDeck::drawCard(TempDeck);
+		if (strReply.length() > 1000) {
+			AddMsgToQueue(strReply, eve.fromQQ);
+			strReply.clear();
+		}
+	}
+	AddMsgToQueue(strReply, eve.fromQQ);
+	if (intCardNum) {
+		AddMsgToQueue(GlobalMsg["strDeckEmpty"], eve.fromQQ);
+		return;
+	}
+}
 	else if (strLowerMessage[intMsgCnt] == 'r' || strLowerMessage[intMsgCnt] == 'o' || strLowerMessage[intMsgCnt] == 'd'
 	)
 	{
@@ -3198,6 +3248,55 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		}
 		AddMsgToQueue(strReply, eve.fromGroup, false);
 	}
+	else if (strLowerMessage.substr(intMsgCnt, 4) == "draw") {
+
+	intMsgCnt += 4;
+	while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		intMsgCnt++;
+
+	string strDeckName;
+	while (!isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+	{
+		strDeckName += strLowerMessage[intMsgCnt];
+		intMsgCnt++;
+	}
+	while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		intMsgCnt++;
+	string strCardNum;
+	while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+	{
+		strCardNum += eve.message[intMsgCnt];
+		intMsgCnt++;
+	}
+	auto intCardNum = strCardNum.empty() ? 1 : stoi(strCardNum);
+	if (intCardNum == 0)
+	{
+		AddMsgToQueue(GlobalMsg["strNumCannotBeZero"], eve.fromGroup, false);
+		return;
+	}
+	int intDeckRes = CardDeck::findDeck(strDeckName);
+	string strReply;
+	if (intDeckRes < 0) {
+		strReply = strDeckName + "?" + GlobalMsg["strDeckNotFound"];
+		AddMsgToQueue(strReply, eve.fromGroup, false);
+		return;
+	}
+	vector<string>TempDeck(CardDeck::PublicDeck[intDeckRes]);
+	TempDeck.erase(TempDeck.begin());
+	strReply = "来看看" + strNickName + "的随机抽取结果:\n" + CardDeck::drawCard(TempDeck);
+	while (--intCardNum && TempDeck.size()) {
+		strReply += "\n" + CardDeck::drawCard(TempDeck);
+		if (strReply.length() > 1000) {
+			AddMsgToQueue(strReply, eve.fromGroup, false);
+			strReply.clear();
+		}
+	}
+	AddMsgToQueue(strReply, eve.fromGroup, false);
+	if (intCardNum) {
+		AddMsgToQueue(GlobalMsg["strDeckEmpty"], eve.fromGroup, false);
+		return;
+	}
+}
 	else if (strLowerMessage[intMsgCnt] == 'r' || strLowerMessage[intMsgCnt] == 'o' || strLowerMessage[intMsgCnt] == 'h'
 		|| strLowerMessage[intMsgCnt] == 'd')
 	{
@@ -4925,6 +5024,55 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 		}
 		AddMsgToQueue(strReply, eve.fromDiscuss, false);
 	}
+	else if (strLowerMessage.substr(intMsgCnt, 4) == "draw") {
+
+	intMsgCnt += 4;
+	while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		intMsgCnt++;
+
+	string strDeckName;
+	while (!isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+	{
+		strDeckName += strLowerMessage[intMsgCnt];
+		intMsgCnt++;
+	}
+	while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		intMsgCnt++;
+	string strCardNum;
+	while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+	{
+		strCardNum += eve.message[intMsgCnt];
+		intMsgCnt++;
+	}
+	auto intCardNum = strCardNum.empty() ? 1 : stoi(strCardNum);
+	if (intCardNum == 0)
+	{
+		AddMsgToQueue(GlobalMsg["strNumCannotBeZero"], eve.fromDiscuss, false);
+		return;
+	}
+	int intDeckRes = CardDeck::findDeck(strDeckName);
+	string strReply;
+	if (intDeckRes < 0) {
+		strReply = strDeckName + "?" + GlobalMsg["strDeckNotFound"];
+		AddMsgToQueue(strReply, eve.fromDiscuss, false);
+		return;
+	}
+	vector<string>TempDeck(CardDeck::PublicDeck[intDeckRes]);
+	TempDeck.erase(TempDeck.begin());
+	strReply = "来看看" + strNickName + "的随机抽取结果:\n" + CardDeck::drawCard(TempDeck);
+	while (--intCardNum && TempDeck.size()) {
+		strReply += "\n" + CardDeck::drawCard(TempDeck);
+		if (strReply.length() > 1000) {
+			AddMsgToQueue(strReply, eve.fromDiscuss, false);
+			strReply.clear();
+		}
+	}
+	AddMsgToQueue(strReply, eve.fromDiscuss, false);
+	if (intCardNum) {
+		AddMsgToQueue(GlobalMsg["strDeckEmpty"], eve.fromDiscuss, false);
+		return;
+	}
+}
 	else if (strLowerMessage[intMsgCnt] == 'r' || strLowerMessage[intMsgCnt] == 'o' || strLowerMessage[intMsgCnt] == 'h'
 		|| strLowerMessage[intMsgCnt] == 'd')
 	{

@@ -64,6 +64,9 @@ const std::string Dice_Full_Ver = Dice_Short_Ver + " [UNKNOWN COMPILER]"
 
 std::map<std::string, std::string> GlobalMsg
 {
+	{"strNumCannotBeZero", "无意义的数目！莫要消遣于我!"},
+	{"strDeckNotFound", "没听说过呢……"},
+	{"strDeckEmpty", "疲劳警告！已经什么也不剩了！"},
 	{"strNameNumTooBig", "生成数量过多!请输入1-10之间的数字!"},
 	{"strNameNumCannotBeZero", "生成数量不能为零!请输入1-10之间的数字!"},
 	{"strSetInvalid", "无效的默认骰!请输入1-1000之间的数字!"},
