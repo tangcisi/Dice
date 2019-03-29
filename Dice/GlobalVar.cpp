@@ -38,7 +38,7 @@ CQ::logger DiceLogger("Dice!");
 const unsigned short Dice_Build = 509;
 const std::string Dice_Ver_Without_Build = "2.3.6";
 const std::string DiceRequestHeader = "Dice/" + Dice_Ver_Without_Build;
-const std::string Dice_Ver = Dice_Ver_Without_Build + "(" + std::to_string(Dice_Build) + ")";
+const std::string Dice_Ver = Dice_Ver_Without_Build + "(" + std::to_string(Dice_Build) + ")" + "Edited+++ by String.Empty";
 const std::string Dice_Short_Ver = "Dice! by 溯洄 Version " + Dice_Ver;
 #ifdef __clang__
 
@@ -53,7 +53,7 @@ const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + __clang_version_
 #else
 
 #ifdef _MSC_VER
-const std::string Dice_Full_Ver = Dice_Short_Ver + "Edited+ by String.Empty" +" [MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__ + "]";
+const std::string Dice_Full_Ver = Dice_Short_Ver + " [MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__ + "]";
 #elif defined(__GNUC__)
 const std::string Dice_Full_Ver = Dice_Short_Ver + " [GNUC " + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__) + " " + __DATE__ + " " + __TIME__ + "]";
 #else
@@ -75,8 +75,6 @@ std::map<std::string, std::string> GlobalMsg
 	{"strCharacterCannotBeZero", "人物作成次数不能为零!请输入1-10之间的数字!"},
 	{"strSetInvalid", "无效的默认骰!请输入1-1000之间的数字!"},
 	{"strSetTooBig", "默认骰过大!请输入1-1000之间的数字!"},
-	{"strSetCannotBeZero", "默认骰不能为零!请输入1-1000之间的数字!"},
-	{"strCharacterCannotBeZero", "人物作成次数不能为零!请输入1-10之间的数字!"},
 	{"strCharacterTooBig", "人物作成次数过多!请输入1-10之间的数字!"},
 	{"strCharacterInvalid", "人物作成次数无效!请输入1-10之间的数字!"},
 	{"strSCInvalid", "SC表达式输入不正确,格式为成功扣San/失败扣San,如1/1d6!"},
@@ -143,6 +141,7 @@ std::map<std::string, std::string> GlobalMsg
 .jrrp [on/off]				今日人品检定
 .name [cn/jp/en] [个数]			生成随机名称
 .rules [规则名称:]规则条目		规则查询
+.draw [牌堆名称] ([抽牌数])		抽牌
 .help						显示帮助
 <仅限群/多人聊天>
 .ri [加值] [昵称]			DnD先攻掷骰
@@ -160,5 +159,5 @@ std::map<std::string, std::string> GlobalMsg
  支持使用K来取较大的几个骰子
  支持使用 个数#表达式 进行多轮掷骰
 **SC表达式为 成功扣San/失败扣San,如:1/1d6
-**官方骰娘相关**/插件交流/bug反馈/查看源代码请加QQ群941980833或624807593(已满))"}
+**官方骰娘相关**/使用手册/插件交流/bug反馈/查看源代码请加QQ群941980833或624807593(已满))"}
 };

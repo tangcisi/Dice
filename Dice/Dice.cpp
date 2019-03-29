@@ -5368,6 +5368,10 @@ EVE_System_GroupMemberIncrease(eventGroupMemberIncrease)
 		}
 		AddMsgToQueue(strReply, fromGroup, false);
 	}
+	else if (beingOperateQQ == getLoginQQ()) {
+		string strReply = "Servant Ruler,四季映姬·亚玛萨那度。来，细数你的罪孽吧！";
+		AddMsgToQueue(strReply, fromGroup, false);
+	}
 	return 0;
 }
 
