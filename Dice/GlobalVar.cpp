@@ -82,6 +82,7 @@ std::map<std::string, std::string> GlobalMsg
 	{"strEnValInvalid", "技能值或属性输入不正确,请输入1-99范围内的整数!"},
 	{"strSuccessRateErr","这成功率还需要检定吗？"},
 	{"strGroupIDInvalid", "无效的群号!"},
+	{"strGroupGetErr", "这个群……似乎并不在呢？"},
 	{"strSendErr", "消息发送失败!"},
 	{"strDisabledErr", "命令无法执行:机器人已在此群中被关闭!"},
 	{"strMEDisabledErr", "管理员已在此群中禁用.me命令!"},
