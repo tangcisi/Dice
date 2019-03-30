@@ -1805,11 +1805,13 @@ EVE_GroupMsg_EX(eventGroupMsg)
 	while (isspace(static_cast<unsigned char>(eve.message[0])))
 		eve.message.erase(eve.message.begin());
 	string strAt = "[CQ:at,qq=" + to_string(getLoginQQ()) + "]";
+	bool boolNamed=false;
 	if (eve.message.substr(0, 6) == "[CQ:at")
 	{
 		if (eve.message.substr(0, strAt.length()) == strAt)
 		{
 			eve.message = eve.message.substr(strAt.length());
+			boolNamed = true;
 		}
 		else
 		{
@@ -1922,7 +1924,7 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		}
 		return;
 	}
-	if (DisabledGroup.count(eve.fromGroup))
+	if (!boolNamed&&DisabledGroup.count(eve.fromGroup))
 		return;
 	if (strLowerMessage.substr(intMsgCnt, 4) == "help")
 	{
@@ -2009,6 +2011,67 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		{
 			AddMsgToQueue(GlobalMsg["strPermissionDeniedErr"], eve.fromGroup, false);
 		}
+	}
+	else if (strLowerMessage.substr(intMsgCnt, 5) == "group")
+	{
+		if (getGroupMemberInfo(eve.fromGroup, eve.fromQQ).permissions == 1) {
+			AddMsgToQueue(GlobalMsg["strPermissionDeniedErr"], eve.fromGroup, false);
+			return;
+		}
+		if (getGroupMemberInfo(eve.fromGroup, getLoginQQ()).permissions == 1) {
+			AddMsgToQueue(GlobalMsg["strSelfPermissionErr"], eve.fromGroup, false);
+			return;
+		}
+		intMsgCnt += 5;
+		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			intMsgCnt++;
+		string Command;
+		while (intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && !isspace(
+			static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+		{
+			Command += strLowerMessage[intMsgCnt];
+			intMsgCnt++;
+		}
+		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			intMsgCnt++;
+		string QQNum;
+		while (isdigit(strLowerMessage[intMsgCnt])) {
+			QQNum += strLowerMessage[intMsgCnt];
+			intMsgCnt++;
+		}
+		while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
+			intMsgCnt++;
+		if (Command == "ban")
+		{
+			long long llMemberQQ = stoll(QQNum);
+			GroupMemberInfo Member = getGroupMemberInfo(eve.fromGroup, llMemberQQ);
+			if (Member.QQID == llMemberQQ)
+			{
+				string strMainDice;
+				while (isdigit(strLowerMessage[intMsgCnt])|| (strLowerMessage[intMsgCnt])=='d'|| (strLowerMessage[intMsgCnt])=='+'|| (strLowerMessage[intMsgCnt])=='-') {
+					strMainDice += strLowerMessage[intMsgCnt];
+					intMsgCnt++;
+				}
+				RD rdMainDice(strMainDice, llMemberQQ);
+				rdMainDice.Roll();
+				int intDuration = rdMainDice.intTotal;
+				if (setGroupBan(eve.fromGroup, llMemberQQ, intDuration * 60))
+					AddMsgToQueue("已将" + Member.Nick + "禁言" + to_string(intDuration) + "分钟√", eve.fromGroup, false);
+				else AddMsgToQueue("禁言失败×", eve.fromGroup, false);
+			}else AddMsgToQueue("查无此人×", eve.fromGroup, false);
+		}
+		else if (Command == "unfriendly")
+		{
+			string strReply="群内的不良记录成员（30天内被踢出群且拒绝加群）有：\n";
+			vector<GroupMemberInfo> MemberList = getGroupMemberList(eve.fromGroup);
+			for (auto it:MemberList) {
+				if (it.NaughtyRecord) {
+					strReply += it.Nick + "(" + to_string(it.QQID)+")\n";
+				}
+			}
+			AddMsgToQueue(strReply, eve.fromGroup, false);
+		}
+		return;
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 2) == "st")
 	{
