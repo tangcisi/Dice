@@ -147,9 +147,9 @@ string strFileLoc;
 //备份数据
 void dataBackUp() {
 	//备份MasterQQ
-	ofstream ofstreamMasterQQ(strFileLoc + "MasterQQ.RDconf", ios::out | ios::trunc);
-	ofstreamMasterQQ << masterQQ << std::endl;
-	ofstreamMasterQQ.close();
+	ofstream ofstreamMaster(strFileLoc + "Master.RDconf", ios::out | ios::trunc);
+	ofstreamMaster << masterQQ << std::endl << boolMasterMode << std::endl;
+	ofstreamMaster.close();
 	//备份个性化语句
 	ofstream ofstreamPersonalMsg(strFileLoc + "PersonalMsg.RDconf", ios::out | ios::trunc);
 	for (auto it = WelcomeMsg.begin(); it != WelcomeMsg.end(); ++it)
@@ -174,12 +174,13 @@ EVE_Enable(eventEnable)
 	* 名称存储-创建与读取
 	*/
 	Name = make_unique<NameStorage>(strFileLoc + "Name.dicedb");
-	ifstream ifstreamMasterQQ(strFileLoc + "MasterQQ.RDconf");
-	if (ifstreamMasterQQ)
+	//读取MasterMode
+	ifstream ifstreamMaster(strFileLoc + "Master.RDconf");
+	if (ifstreamMaster)
 	{
-		ifstreamMasterQQ >> masterQQ;
+		ifstreamMaster >> masterQQ >> boolMasterMode;
 	}
-	ifstreamMasterQQ.close();
+	ifstreamMaster.close();
 	ifstream ifstreamCharacterProp(strFileLoc + "CharacterProp.RDconf");
 	if (ifstreamCharacterProp)
 	{
