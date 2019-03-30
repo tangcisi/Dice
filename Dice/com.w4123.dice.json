@@ -60,7 +60,11 @@
   "menu": [
     {
       "name": "更新Dice!",
-      "function": "eventMenu"
+      "function": "eventDiceUpdate"
+    },
+    {
+      "name": "Master模式切换",
+      "function": "eventMasterMode"
     }
   ],
   "auth": [
