@@ -151,7 +151,7 @@ void dataBackUp() {
 	ofstreamMasterQQ.close();
 	//备份个性化语句
 	ofstream ofstreamPersonalMsg(strFileLoc + "PersonalMsg.RDconf", ios::out | ios::trunc);
-	for (auto it = PersonalMsg.begin(); it != PersonalMsg.end(); ++it)
+	for (auto it = WelcomeMsg.begin(); it != WelcomeMsg.end(); ++it)
 	{
 		while (it->second.find(' ') != string::npos)it->second.replace(it->second.find(' '), 1, "{space}");
 		while (it->second.find('\t') != string::npos)it->second.replace(it->second.find('\t'), 1, "{tab}");
@@ -409,7 +409,7 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
 					intMsgCnt++;
 				if (strOption == "addgroup") {
-					string strPersonalMsg = eve.message.substr(intMsgCnt);
+					string strPersonalMsg = strLowerMessage.substr(intMsgCnt);
 					if (strPersonalMsg.empty()) {
 						if (PersonalMsg.count("strAddGroup")) {
 							PersonalMsg.erase("strAddGroup");
@@ -422,8 +422,8 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 						AddMsgToQueue("入群发言已准备好了√", eve.fromQQ);
 					}
 				}
-				else if (strOption == "bot") {
-					string strPersonalMsg = eve.message.substr(intMsgCnt);
+				if (strOption == "bot") {
+					string strPersonalMsg = strLowerMessage.substr(intMsgCnt);
 					if (strPersonalMsg.empty()) {
 						if (PersonalMsg.count("strBotMsg")) {
 							PersonalMsg.erase("strBotMsg");
@@ -436,8 +436,8 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 						AddMsgToQueue("已为bot附加信息√", eve.fromQQ);
 					}
 				}
-				else if (strOption == "help") {
-					string strPersonalMsg = eve.message.substr(intMsgCnt);
+				if (strOption == "help") {
+					string strPersonalMsg = strLowerMessage.substr(intMsgCnt);
 					if (strPersonalMsg.empty()) {
 						if (PersonalMsg.count("strHelpMsg")) {
 							PersonalMsg.erase("strHelpMsg");
