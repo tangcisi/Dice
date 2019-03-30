@@ -105,7 +105,6 @@ std::string getName(long long QQ, long long GroupID = 0)
 	return strip(getStrangerInfo(QQ).nick);
 }
 
-long long masterQQ=0;
 map<long long, int> DefaultDice;
 map<long long, string> WelcomeMsg;
 map<long long, string> DefaultRule;
@@ -120,7 +119,6 @@ set<long long> DisabledHELPDiscuss;
 set<long long> DisabledOBGroup;
 set<long long> DisabledOBDiscuss;
 unique_ptr<Initlist> ilInitList;
-map<string, string> PersonalMsg;
 
 struct SourceType
 {
@@ -142,24 +140,6 @@ map<SourceType, PropType> CharacterProp;
 multimap<long long, long long> ObserveGroup;
 multimap<long long, long long> ObserveDiscuss;
 string strFileLoc;
-
-//备份数据
-void dataBackUp() {
-	//备份MasterQQ
-	ofstream ofstreamMasterQQ(strFileLoc + "MasterQQ.RDconf", ios::out | ios::trunc);
-	ofstreamMasterQQ << masterQQ << std::endl;
-	ofstreamMasterQQ.close();
-	//备份个性化语句
-	ofstream ofstreamPersonalMsg(strFileLoc + "PersonalMsg.RDconf", ios::out | ios::trunc);
-	for (auto it = WelcomeMsg.begin(); it != WelcomeMsg.end(); ++it)
-	{
-		while (it->second.find(' ') != string::npos)it->second.replace(it->second.find(' '), 1, "{space}");
-		while (it->second.find('\t') != string::npos)it->second.replace(it->second.find('\t'), 1, "{tab}");
-		while (it->second.find('\n') != string::npos)it->second.replace(it->second.find('\n'), 1, "{endl}");
-		while (it->second.find('\r') != string::npos)it->second.replace(it->second.find('\r'), 1, "{enter}");
-		ofstreamPersonalMsg << it->first << std::endl << it->second << std::endl;
-	}
-}
 EVE_Enable(eventEnable)
 {
 	//Wait until the thread terminates
@@ -173,12 +153,6 @@ EVE_Enable(eventEnable)
 	* 名称存储-创建与读取
 	*/
 	Name = make_unique<NameStorage>(strFileLoc + "Name.dicedb");
-	ifstream ifstreamMasterQQ(strFileLoc + "MasterQQ.RDconf");
-	if (ifstreamMasterQQ)
-	{
-		ifstreamMasterQQ >> masterQQ;
-	}
-	ifstreamMasterQQ.close();
 	ifstream ifstreamCharacterProp(strFileLoc + "CharacterProp.RDconf");
 	if (ifstreamCharacterProp)
 	{
@@ -339,21 +313,6 @@ EVE_Enable(eventEnable)
 		}
 	}
 	ifstreamWelcomeMsg.close();
-	ifstream ifstreamPersonalMsg(strFileLoc + "PersonalMsg.RDconf");
-	if (ifstreamPersonalMsg)
-	{
-		string strType;
-		string Msg;
-		while (ifstreamWelcomeMsg >> strType >> Msg)
-		{
-			while (Msg.find("{space}") != string::npos)Msg.replace(Msg.find("{space}"), 7, " ");
-			while (Msg.find("{tab}") != string::npos)Msg.replace(Msg.find("{tab}"), 5, "\t");
-			while (Msg.find("{endl}") != string::npos)Msg.replace(Msg.find("{endl}"), 6, "\n");
-			while (Msg.find("{enter}") != string::npos)Msg.replace(Msg.find("{enter}"), 7, "\r");
-			PersonalMsg[strType] = Msg;
-		}
-	}
-	ifstreamWelcomeMsg.close();
 	ilInitList = make_unique<Initlist>(strFileLoc + "INIT.DiceDB");
 	ifstream ifstreamCustomMsg(strFileLoc + "CustomMsg.json");
 	if (ifstreamCustomMsg)
@@ -381,119 +340,7 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 	transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
 	if (strLowerMessage.substr(intMsgCnt, 4) == "help")
 	{
-		if (PersonalMsg.count("strHelpMsg"))
-			AddMsgToQueue(PersonalMsg["strHelpMsg"], eve.fromQQ);
-		else AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromQQ);
-	}
-	else if (strLowerMessage.substr(intMsgCnt, 6) == "master") {
-		intMsgCnt+=6;
-		if (masterQQ==0) {
-			masterQQ = eve.fromQQ;
-			AddMsgToQueue("你已成为本骰娘的master√", eve.fromQQ);
-		}else if (eve.fromQQ == masterQQ){
-			while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-				intMsgCnt++;
-			//命令选项
-			string strOption;
-			while (!isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])) && intMsgCnt != strLowerMessage.length() && !isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-			{
-				strOption += strLowerMessage[intMsgCnt];
-				intMsgCnt++;
-			}
-			if (strOption.length() == 0)return;
-			if (strOption == "delete") {
-				masterQQ = 0;
-				AddMsgToQueue("你不再是本骰娘的master！", eve.fromQQ);
-			}
-			else {
-				while (isspace(static_cast<unsigned char>(strLowerMessage[intMsgCnt])))
-					intMsgCnt++;
-				if (strOption == "addgroup") {
-					string strPersonalMsg = strLowerMessage.substr(intMsgCnt);
-					if (strPersonalMsg.empty()) {
-						if (PersonalMsg.count("strAddGroup")) {
-							PersonalMsg.erase("strAddGroup");
-							AddMsgToQueue("入群发言已清除√", eve.fromQQ);
-						}
-						else AddMsgToQueue("当前未设置入群发言×", eve.fromQQ);
-					}
-					else {
-						PersonalMsg["strAddGroup"] = strPersonalMsg;
-						AddMsgToQueue("入群发言已准备好了√", eve.fromQQ);
-					}
-				}
-				if (strOption == "bot") {
-					string strPersonalMsg = strLowerMessage.substr(intMsgCnt);
-					if (strPersonalMsg.empty()) {
-						if (PersonalMsg.count("strBotMsg")) {
-							PersonalMsg.erase("strBotMsg");
-							AddMsgToQueue("已清除bot附加信息√", eve.fromQQ);
-						}
-						else AddMsgToQueue("当前未设置bot附加信息×", eve.fromQQ);
-					}
-					else {
-						PersonalMsg["strBotMsg"] = strPersonalMsg;
-						AddMsgToQueue("已为bot附加信息√", eve.fromQQ);
-					}
-				}
-				if (strOption == "help") {
-					string strPersonalMsg = strLowerMessage.substr(intMsgCnt);
-					if (strPersonalMsg.empty()) {
-						if (PersonalMsg.count("strHelpMsg")) {
-							PersonalMsg.erase("strHelpMsg");
-							AddMsgToQueue("已还原帮助信息√", eve.fromQQ);
-						}
-						else AddMsgToQueue("当前未自定义帮助信息×", eve.fromQQ);
-					}
-					else {
-						PersonalMsg["strHelpMsg"] = strPersonalMsg;
-						AddMsgToQueue("已替代原有帮助信息√", eve.fromQQ);
-					}
-				}
-				else {
-
-					string strTargetID;
-					while (isdigit(static_cast<unsigned char>(strLowerMessage[intMsgCnt]))) {
-						strTargetID += strLowerMessage[intMsgCnt];
-						intMsgCnt++;
-					}
-					long long llTargetID = stoll(strTargetID);
-					if (strOption == "dismiss") {
-						if (getGroupList().count(llTargetID)) {
-							setGroupLeave(llTargetID);
-							AddMsgToQueue("骰娘已退出该群√", eve.fromQQ);
-						}
-						else {
-							AddMsgToQueue(GlobalMsg["strGroupGetErr"], eve.fromQQ);
-						}
-					}
-					else if (strOption == "boton") {
-						if (getGroupList().count(llTargetID)) {
-							if (DisabledGroup.count(llTargetID)) {
-								DisabledGroup.erase(llTargetID);
-								AddMsgToQueue("骰娘已在该群起用√", eve.fromQQ);
-							}
-							else AddMsgToQueue("骰娘已在该群起用!", eve.fromQQ);
-						}
-						else {
-							AddMsgToQueue(GlobalMsg["strGroupGetErr"], eve.fromQQ);
-						}
-					}
-					else if (strOption == "botoff") {
-						if (getGroupList().count(llTargetID)) {
-							if (!DisabledGroup.count(llTargetID)) {
-								DisabledGroup.insert(llTargetID);
-								AddMsgToQueue("骰娘已在该群静默√", eve.fromQQ);
-							}
-							else AddMsgToQueue("骰娘已在该群静默!", eve.fromQQ);
-						}
-						else {
-							AddMsgToQueue(GlobalMsg["strGroupGetErr"], eve.fromQQ);
-						}
-					}
-				}
-			}
-		}
+		AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromQQ);
 	}
 	else if (strLowerMessage[intMsgCnt] == 'w')
 	{
@@ -820,7 +667,7 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 3) == "bot")
 	{
-		AddMsgToQueue(Dice_Full_Ver+PersonalMsg["strBotMsg"], eve.fromQQ);
+		AddMsgToQueue(Dice_Full_Ver, eve.fromQQ);
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 2) == "en")
 	{
@@ -1789,16 +1636,7 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 
 EVE_GroupMsg_EX(eventGroupMsg)
 {
-	if (eve.isAnonymous())return;
-	if (eve.isSystem()) {
-		if (eve.message.find("被管理员禁言") != string::npos&&eve.message.find(to_string(getLoginQQ())) != string::npos) {
-			if(masterQQ){
-				string strMsg = "在群\"" + getGroupList()[eve.fromGroup] + "\"("+ to_string(eve.fromGroup)+ ")中," + eve.message;
-				AddMsgToQueue(strMsg, masterQQ);
-			}
-		}
-		else return;
-	}
+	if (eve.isSystem() || eve.isAnonymous())return;
 	init(eve.message);
 	while (isspace(static_cast<unsigned char>(eve.message[0])))
 		eve.message.erase(eve.message.begin());
@@ -1890,7 +1728,7 @@ EVE_GroupMsg_EX(eventGroupMsg)
 			if (QQNum.empty() || QQNum == to_string(getLoginQQ()) || (QQNum.length() == 4 && QQNum == to_string(
 				getLoginQQ() % 10000)))
 			{
-				AddMsgToQueue(Dice_Full_Ver + PersonalMsg["strBotMsg"] , eve.fromGroup, false);
+				AddMsgToQueue(Dice_Full_Ver, eve.fromGroup, false);
 			}
 		}
 		return;
@@ -1973,9 +1811,7 @@ EVE_GroupMsg_EX(eventGroupMsg)
 			AddMsgToQueue(GlobalMsg["strHELPDisabledErr"], eve.fromGroup, false);
 			return;
 		}
-		if (PersonalMsg.count("strHelpMsg"))
-			AddMsgToQueue(PersonalMsg["strHelpMsg"], eve.fromGroup, false);
-		else AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromGroup, false);
+		AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromGroup, false);
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 7) == "welcome")
 	{
@@ -3802,7 +3638,7 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 			if (QQNum.empty() || QQNum == to_string(getLoginQQ()) || (QQNum.length() == 4 && QQNum == to_string(
 				getLoginQQ() % 10000)))
 			{
-				AddMsgToQueue(Dice_Full_Ver + PersonalMsg["strBotMsg"], eve.fromDiscuss, false);
+				AddMsgToQueue(Dice_Full_Ver, eve.fromDiscuss, false);
 			}
 		}
 		return;
@@ -3829,9 +3665,7 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 		return;
 	if (strLowerMessage.substr(intMsgCnt, 4) == "help")
 	{
-		if (PersonalMsg.count("strHelpMsg"))
-			AddMsgToQueue(PersonalMsg["strHelpMsg"], eve.fromDiscuss, false);
-		else AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromDiscuss, false);
+		AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromDiscuss, false);
 	}
 	else if (strLowerMessage.substr(intMsgCnt, 2) == "st")
 	{
@@ -5534,37 +5368,18 @@ EVE_System_GroupMemberIncrease(eventGroupMemberIncrease)
 		}
 		AddMsgToQueue(strReply, fromGroup, false);
 	}
-	else if (beingOperateQQ == getLoginQQ()&&PersonalMsg.count("strAddGroup")) {
-		AddMsgToQueue(PersonalMsg["strAddGroup"], fromGroup, false);
+	else if (beingOperateQQ == getLoginQQ()) {
+		string strReply = "Servant Ruler,四季映姬·亚玛萨那度。来，细数你的罪孽吧！";
+		AddMsgToQueue(strReply, fromGroup, false);
 	}
 	return 0;
 }
 
-EVE_System_GroupMemberDecrease(eventGroupMemberDecrease) {
-	if (beingOperateQQ == getLoginQQ()) {
-		if (masterQQ) {
-			string strMsg = to_string(fromQQ)+"将本骰娘移出了群" + to_string(fromGroup) + "！";
-			AddMsgToQueue(strMsg, masterQQ);
-		}
-	}
-	return 0;
-}
-
-EVE_Request_AddGroup(eventGroupInvited) {
-	if (subType == 2) {
-		if (masterQQ) {
-			string strMsg = to_string(fromQQ) + "邀请本骰娘加群" + to_string(fromGroup);
-			AddMsgToQueue(strMsg, masterQQ);
-		}
-	}
-	return 0;
-}
 EVE_Disable(eventDisable)
 {
 	Enabled = false;
 	ilInitList.reset();
 	Name.reset();
-	dataBackUp();
 	ofstream ofstreamDisabledGroup(strFileLoc + "DisabledGroup.RDconf", ios::out | ios::trunc);
 	for (auto it = DisabledGroup.begin(); it != DisabledGroup.end(); ++it)
 	{
@@ -5695,7 +5510,6 @@ EVE_Exit(eventExit)
 		return 0;
 	ilInitList.reset();
 	Name.reset();
-	dataBackUp();
 	ofstream ofstreamDisabledGroup(strFileLoc + "DisabledGroup.RDconf", ios::out | ios::trunc);
 	for (auto it = DisabledGroup.begin(); it != DisabledGroup.end(); ++it)
 	{
