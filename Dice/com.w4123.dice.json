@@ -65,6 +65,14 @@
     {
       "name": "Master模式切换",
       "function": "eventMasterMode"
+    },
+    {
+      "name": "一键清退",
+      "function": "eventClearGroup"
+    },
+    {
+      "name": "全局开关",
+      "function": "eventGlobalSwitch"
     }
   ],
   "auth": [

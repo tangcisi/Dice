@@ -206,6 +206,7 @@
     <ClCompile Include="CardDeck.cpp" />
     <ClCompile Include="CustomMsg.cpp" />
     <ClCompile Include="Dice.cpp" />
+    <ClCompile Include="DiceConsole.cpp" />
     <ClCompile Include="DiceMsgSend.cpp" />
     <ClCompile Include="DiceNetwork.cpp" />
     <ClCompile Include="DiceUpdate.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="APPINFO.h" />
     <ClInclude Include="CardDeck.h" />
     <ClInclude Include="CustomMsg.h" />
+    <ClInclude Include="DiceConsole.h" />
     <ClInclude Include="DiceMsgSend.h" />
     <ClInclude Include="DiceNetwork.h" />
     <ClInclude Include="EncodingConvert.h" />
