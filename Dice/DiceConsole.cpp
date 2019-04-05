@@ -41,6 +41,8 @@ namespace Console
 	std::set<long long> DisabledGroup;
 	//botoff的讨论组
 	std::set<long long> DisabledDiscuss;
+	//白名单群：私用模式豁免
+	std::set<long long> WhiteGroup;
 	//一键清退
 	int clearGroup(string strPara) {
 		int intCnt=0;
@@ -57,7 +59,7 @@ namespace Console
 		}
 		else if (strPara == "preserve") {
 			for (auto eachGroup : GroupList) {
-				if (getGroupMemberInfo(eachGroup.first, masterQQ).QQID != masterQQ) {
+				if (getGroupMemberInfo(eachGroup.first, masterQQ).QQID != masterQQ&&WhiteGroup.count(eachGroup.first)==0) {
 					AddMsgToQueue(GlobalMsg["strPreserve"], eachGroup.first, false);
 					Sleep(10);
 					setGroupLeave(eachGroup.first);
@@ -177,7 +179,6 @@ namespace Console
 				}
 			}
 			else {
-
 				std::string strTargetID;
 				while (isdigit(static_cast<unsigned char>(strMessage[intMsgCnt]))) {
 					strTargetID += strMessage[intMsgCnt];
@@ -185,6 +186,7 @@ namespace Console
 				}
 				long long llTargetID = stoll(strTargetID);
 				if (strOption == "dismiss") {
+					WhiteGroup.erase(llTargetID);
 					if (getGroupList().count(llTargetID)) {
 						setGroupLeave(llTargetID);
 						AddMsgToQueue("骰娘已退出该群√", masterQQ);
@@ -215,6 +217,15 @@ namespace Console
 					}
 					else {
 						AddMsgToQueue(GlobalMsg["strGroupGetErr"], masterQQ);
+					}
+				}
+				else if (strOption == "whitegroup") {
+					if (WhiteGroup.count(llTargetID)) {
+						AddMsgToQueue("该群已加入白名单!", masterQQ);
+					}
+					else {
+						WhiteGroup.insert(llTargetID);
+						AddMsgToQueue("该群已加入白名单√", masterQQ);
 					}
 				}
 			}

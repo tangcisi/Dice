@@ -179,6 +179,13 @@ void dataBackUp() {
 	{
 		ofstreamDefaultRule << it->first << std::endl << it->second << std::endl;
 	}
+	//备份白名单群
+	ofstream ofstreamWhiteGroup(strFileLoc + "WhiteGroup.RDconf", ios::out | ios::trunc);
+	for (auto it = WhiteGroup.begin(); it != WhiteGroup.end(); ++it)
+	{
+		ofstreamWhiteGroup << *it << std::endl;
+	}
+	ofstreamWhiteGroup.close();
 }
 EVE_Enable(eventEnable)
 {
@@ -384,7 +391,17 @@ EVE_Enable(eventEnable)
 			PersonalMsg[strType] = Msg;
 		}
 	}
-	ifstreamWelcomeMsg.close();
+	ifstreamPersonalMsg.close();
+	ifstream ifstreamWhiteGroup(strFileLoc + "WhiteGroup.RDconf");
+	if (ifstreamWhiteGroup)
+	{
+		long long Group;
+		while (ifstreamWhiteGroup >> Group)
+		{
+			WhiteGroup.insert(Group);
+		}
+	}
+	ifstreamWhiteGroup.close();
 	ilInitList = make_unique<Initlist>(strFileLoc + "INIT.DiceDB");
 	ifstream ifstreamCustomMsg(strFileLoc + "CustomMsg.json");
 	if (ifstreamCustomMsg)
@@ -3768,7 +3785,7 @@ EVE_GroupMsg_EX(eventGroupMsg)
 
 EVE_DiscussMsg_EX(eventDiscussMsg)
 {
-	if (boolPreserve) {
+	if (boolPreserve&&WhiteGroup.count(eve.fromDiscuss)==0) {
 		AddMsgToQueue(GlobalMsg["strPreserve"],eve.fromDiscuss,false);
 		Sleep(1000);
 		setDiscussLeave(eve.fromDiscuss);
@@ -5588,9 +5605,10 @@ EVE_System_GroupMemberIncrease(eventGroupMemberIncrease)
 		AddMsgToQueue(strReply, fromGroup, false);
 	}
 	else if(beingOperateQQ == getLoginQQ()){
-		if (boolPreserve&&getGroupMemberInfo(fromGroup, masterQQ).QQID != masterQQ) {
+		if (boolPreserve&&getGroupMemberInfo(fromGroup, masterQQ).QQID != masterQQ&&WhiteGroup.count(fromGroup)==0) {
 			AddMsgToQueue(GlobalMsg["strPreserve"], fromGroup, false);
 			setGroupLeave(fromGroup);
+			return 0;
 		}
 		else if(PersonalMsg.count("strAddGroup")) {
 			AddMsgToQueue(PersonalMsg["strAddGroup"], fromGroup, false);
@@ -5604,6 +5622,9 @@ EVE_System_GroupMemberDecrease(eventGroupMemberDecrease) {
 		if (masterQQ&&boolMasterMode) {
 			string strMsg = to_string(fromQQ)+"将本骰娘移出了群" + to_string(fromGroup) + "！";
 			AddMsgToQueue(strMsg, masterQQ);
+		}
+		if (WhiteGroup.count(fromGroup)) {
+			WhiteGroup.erase(fromGroup);
 		}
 		if (ruler != getLoginQQ()) {
 			string strInfo = "{\"LoginQQ\":\"" + to_string(getLoginQQ()) + "\",\"fromGroup\":" + to_string(fromGroup) + "\",\"Type\":\"kicked\",\"fromQQ\"" + to_string(fromQQ);

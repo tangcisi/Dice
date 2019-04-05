@@ -47,6 +47,8 @@ namespace Console
 	extern std::set<long long> DisabledGroup;
 	//botoff的讨论组
 	extern std::set<long long> DisabledDiscuss;
+	//白名单群：私用模式豁免
+	extern std::set<long long> WhiteGroup;
 	//一键清退
 	extern int clearGroup(std::string strPara = "unpower");
 	//命令处理
