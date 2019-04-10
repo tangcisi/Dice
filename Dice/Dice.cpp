@@ -169,6 +169,7 @@ void dataBackUp() {
 		while (it.second.find("\r\n") != string::npos)it.second.replace(it.second.find("\r\n"), 2, "\\n");
 		while (it.second.find('\n') != string::npos)it.second.replace(it.second.find('\n'), 1, "\\n");
 		while (it.second.find('\r') != string::npos)it.second.replace(it.second.find('\r'), 1, "\\r");
+		while (it.second.find("\t") != string::npos)it.second.replace(it.second.find("\t"), 1, "\\t");
 		string strMsg = GBKtoUTF8(it.second);
 		ofstreamCustomMsg <<"\"" << it.first << "\":\"" << strMsg << "\",";
 	}
@@ -1389,13 +1390,13 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: "+ rdMainDice.FormCompleteString() + "/" +
 			to_string(intFianlSkillVal) +" ";
-		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95)strReply += "失败";
-		else strReply += "大失败";
+		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += GlobalMsg["strRollCriticalSuccess"];
+		else if (intD100Res == 100)strReply += GlobalMsg["strRollFumble"];
+		else if (intD100Res <= intFianlSkillVal / 5)strReply += GlobalMsg["strRollExtremeSuccess"];
+		else if (intD100Res <= intFianlSkillVal / 2)strReply += GlobalMsg["strRollHardSuccess"];
+		else if (intD100Res <= intFianlSkillVal)strReply += GlobalMsg["strRollRegularSuccess"];
+		else if (intD100Res <= 95)strReply += GlobalMsg["strRollFailure"];
+		else strReply += GlobalMsg["strRollFumble"];
 		if (!strReason.empty())
 		{
 			strReply = "由于" + strReason + " " + strReply;
@@ -1497,13 +1498,13 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
 			to_string(intFianlSkillVal) + " ";
-		if (intD100Res == 1)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95 || intFianlSkillVal >= 50 )strReply += "失败";
-		else strReply += "大失败";
+		if (intD100Res == 1)strReply += GlobalMsg["strRollCriticalSuccess"];
+		else if (intD100Res == 100)strReply += GlobalMsg["strRollFumble"];
+		else if (intD100Res <= intFianlSkillVal / 5)strReply += GlobalMsg["strRollExtremeSuccess"];
+		else if (intD100Res <= intFianlSkillVal / 2)strReply += GlobalMsg["strRollHardSuccess"];
+		else if (intD100Res <= intFianlSkillVal)strReply += GlobalMsg["strRollRegularSuccess"];
+		else if (intD100Res <= 95 || intFianlSkillVal >= 50 )strReply += GlobalMsg["strRollFailure"];
+		else strReply += GlobalMsg["strRollFumble"];
 		if (!strReason.empty())
 		{
 			strReply = "由于" + strReason + " " + strReply;
@@ -3351,13 +3352,13 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
 			to_string(intFianlSkillVal) + " ";
-		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95)strReply += "失败";
-		else strReply += "大失败";
+		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += GlobalMsg["strRollCriticalSuccess"];
+		else if (intD100Res == 100)strReply += GlobalMsg["strRollFumble"];
+		else if (intD100Res <= intFianlSkillVal / 5)strReply += GlobalMsg["strRollExtremeSuccess"];
+		else if (intD100Res <= intFianlSkillVal / 2)strReply += GlobalMsg["strRollHardSuccess"];
+		else if (intD100Res <= intFianlSkillVal)strReply += GlobalMsg["strRollRegularSuccess"];
+		else if (intD100Res <= 95)strReply += GlobalMsg["strRollFailure"];
+		else strReply += GlobalMsg["strRollFumble"];
 		if (!strReason.empty())
 		{
 			strReply = "由于" + strReason + " " + strReply;
@@ -3458,13 +3459,13 @@ EVE_GroupMsg_EX(eventGroupMsg)
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
 			to_string(intFianlSkillVal) + " ";
-		if (intD100Res == 1)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95)strReply += "失败";
-		else strReply += "大失败";
+		if (intD100Res == 1)strReply += GlobalMsg["strRollCriticalSuccess"];
+		else if (intD100Res == 100)strReply += GlobalMsg["strRollFumble"];
+		else if (intD100Res <= intFianlSkillVal / 5)strReply += GlobalMsg["strRollExtremeSuccess"];
+		else if (intD100Res <= intFianlSkillVal / 2)strReply += GlobalMsg["strRollHardSuccess"];
+		else if (intD100Res <= intFianlSkillVal)strReply += GlobalMsg["strRollRegularSuccess"];
+		else if (intD100Res <= 95)strReply += GlobalMsg["strRollFailure"];
+		else strReply += GlobalMsg["strRollFumble"];
 		if (!strReason.empty())
 		{
 			strReply = "由于" + strReason + " " + strReply;
@@ -5140,13 +5141,13 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
 			to_string(intFianlSkillVal) + " ";
-		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95)strReply += "失败";
-		else strReply += "大失败";
+		if (intD100Res <= 5 && intD100Res <= intSkillVal)strReply += GlobalMsg["strRollCriticalSuccess"];
+		else if (intD100Res == 100)strReply += GlobalMsg["strRollFumble"];
+		else if (intD100Res <= intFianlSkillVal / 5)strReply += GlobalMsg["strRollExtremeSuccess"];
+		else if (intD100Res <= intFianlSkillVal / 2)GlobalMsg["strRollHardSuccess"];
+		else if (intD100Res <= intFianlSkillVal)GlobalMsg["strRollRegularSuccess"];
+		else if (intD100Res <= 95)strReply += GlobalMsg["strRollFailure"];
+		else strReply += GlobalMsg["strRollFumble"];
 		if (!strReason.empty())
 		{
 			strReply = "由于" + strReason + " " + strReply;
@@ -5247,13 +5248,13 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 		const int intD100Res = rdMainDice.intTotal;
 		string strReply = strNickName + "进行" + strSkillName + strSkillModify + "检定: " + rdMainDice.FormCompleteString() + "/" +
 			to_string(intFianlSkillVal) + " ";
-		if (intD100Res == 1)strReply += "大成功";
-		else if (intD100Res == 100)strReply += "大失败";
-		else if (intD100Res <= intFianlSkillVal / 5)strReply += "极难成功";
-		else if (intD100Res <= intFianlSkillVal / 2)strReply += "困难成功";
-		else if (intD100Res <= intFianlSkillVal)strReply += "成功";
-		else if (intD100Res <= 95 || intFianlSkillVal >= 50)strReply += "失败";
-		else strReply += "大失败";
+		if (intD100Res == 1)strReply += GlobalMsg["strRollCriticalSuccess"];
+		else if (intD100Res == 100)strReply += GlobalMsg["strRollFumble"];
+		else if (intD100Res <= intFianlSkillVal / 5)strReply += GlobalMsg["strRollExtremeSuccess"];
+		else if (intD100Res <= intFianlSkillVal / 2)strReply += GlobalMsg["strRollHardSuccess"];
+		else if (intD100Res <= intFianlSkillVal)strReply += GlobalMsg["strRollRegularSuccess"];
+		else if (intD100Res <= 95 || intFianlSkillVal >= 50)strReply += GlobalMsg["strRollFailure"];
+		else strReply += GlobalMsg["strRollFumble"];
 		if (!strReason.empty())
 		{
 			strReply = "由于" + strReason + " " + strReply;
@@ -5635,10 +5636,13 @@ EVE_System_GroupMemberDecrease(eventGroupMemberDecrease) {
 }
 
 EVE_Request_AddGroup(eventGroupInvited) {
+	if (subType == 2) {
+		setGroupAddRequest(responseFlag,2, 1,"");
 		if (masterQQ&&boolMasterMode) {
-			string strMsg = "群添加请求，来自："+to_string(fromQQ) +",群：" + to_string(fromGroup);
+			string strMsg = "群添加请求，来自：" + to_string(fromQQ) + ",群：" + getStrangerInfo(fromQQ).nick + to_string(fromGroup);
 			AddMsgToQueue(strMsg, masterQQ);
 		}
+	}
 	return 0;
 }
 

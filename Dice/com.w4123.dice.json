@@ -55,6 +55,20 @@
       "name": "群成员添加事件",
       "function": "eventGroupMemberIncrease",
       "priority": 30000
+    },
+    {
+      "id": 8,
+      "type": 102,
+      "name": "群成员减少事件",
+      "function": "eventGroupMemberDecrease",
+      "priority": 30000
+    },
+    {
+      "id": 9,
+      "type": 302,
+      "name": "群添加请求事件",
+      "function": "eventGroupInvited",
+      "priority": 30000
     }
   ],
   "menu": [

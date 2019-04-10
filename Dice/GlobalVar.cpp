@@ -64,6 +64,12 @@ const std::string Dice_Full_Ver = Dice_Short_Ver + " [UNKNOWN COMPILER]"
 
 std::map<std::string, std::string> GlobalMsg
 {
+	{"strRollCriticalSuccess","大成功！"},
+	{"strRollExtremeSuccess","极难成功"},
+	{"strRollHardSuccess","困难成功"},
+	{"strRollRegularSuccess","成功"},
+	{"strRollFailure","失败"},
+	{"strRollFumble","大失败！"},
 	{"strNumCannotBeZero", "无意义的数目！莫要消遣于我!"},
 	{"strDeckNotFound", "没听说过呢……"},
 	{"strDeckEmpty", "疲劳警告！已经什么也不剩了！"},
