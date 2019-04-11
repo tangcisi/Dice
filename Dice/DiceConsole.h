@@ -33,8 +33,6 @@ namespace Console
 {
 	//Master的QQ，无主时为0
 	extern long long masterQQ;
-	//不良记录联网前的信息收集
-	extern long long ruler;
 	//全部群静默
 	extern bool boolDisabledGlobal;
 	//全局禁用.ME
@@ -43,7 +41,7 @@ namespace Console
 	extern bool boolDisabledJrrpGlobal;
 	//独占模式：被拉进讨论组或Master不在的群则秒退
 	extern bool boolPreserve;
-	//拒绝一切讨论组
+	//自动退出一切讨论组
 	extern bool boolNoDiscuss;
 	//个性化语句
 	extern std::map<std::string, std::string> PersonalMsg;

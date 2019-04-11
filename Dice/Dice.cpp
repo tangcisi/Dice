@@ -482,7 +482,7 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 	eve.message_block();
 	const string strNickName = getName(eve.fromQQ);
 	string strLowerMessage = eve.message;
-	transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
+	std::transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
 	if (strLowerMessage.substr(intMsgCnt, 4) == "help")
 	{
 		AddMsgToQueue(GlobalMsg["strHlpMsg"], eve.fromQQ);
@@ -1825,10 +1825,6 @@ EVE_PrivateMsg_EX(eventPrivateMsg)
 EVE_GroupMsg_EX(eventGroupMsg)
 {
 	if (eve.isAnonymous())return;
-	if (BlackQQ.count(eve.fromQQ)) {
-		eve.message_block();
-		return;
-	}
 	if (eve.isSystem()) {
 		if (eve.message.find("被管理员禁言") != string::npos&&eve.message.find(to_string(getLoginQQ())) != string::npos) {
 			long long fromQQ;
@@ -1849,10 +1845,7 @@ EVE_GroupMsg_EX(eventGroupMsg)
 				if(WhiteGroup.count(eve.fromGroup))WhiteGroup.erase(eve.fromGroup);
 				//setGroupLeave(eve.fromGroup);
 			}
-			if (ruler != getLoginQQ()) {
-				string strInfo = "{\"LoginQQ\":\"" + to_string(getLoginQQ()) + "\",\"fromGroup\":" + to_string(eve.fromGroup) + "\",\"Type\":\"banned\",\"fromQQ\":\"" + to_string(fromQQ)+"\"";
-				AddMsgToQueue(strInfo, ruler);
-			}
+			string strInfo = "{\"LoginQQ\":\"" + to_string(getLoginQQ()) + "\",\"fromGroup\":" + to_string(eve.fromGroup) + "\",\"Type\":\"banned\",\"fromQQ\":\"" + to_string(fromQQ)+"\"";
 		}
 		else return;
 	}
@@ -1876,13 +1869,17 @@ EVE_GroupMsg_EX(eventGroupMsg)
 	init2(eve.message);
 	if (eve.message[0] != '.')
 		return;
+	if (BlackQQ.count(eve.fromQQ) || BlackGroup.count(eve.fromGroup)) {
+		eve.message_block();
+		return;
+	}
 	int intMsgCnt = 1;
 	while (isspace(static_cast<unsigned char>(eve.message[intMsgCnt])))
 		intMsgCnt++;
 	eve.message_block();
 	const string strNickName = getName(eve.fromQQ, eve.fromGroup);
 	string strLowerMessage = eve.message;
-	transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
+	std::transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
 	if (strLowerMessage.substr(intMsgCnt, 3) == "bot")
 	{
 		intMsgCnt += 3;
@@ -2108,6 +2105,10 @@ EVE_GroupMsg_EX(eventGroupMsg)
 			GroupMemberInfo Member = getGroupMemberInfo(eve.fromGroup, llMemberQQ);
 			if (Member.QQID == llMemberQQ)
 			{
+				if (Member.permissions > 1) {
+					AddMsgToQueue(GlobalMsg["strSelfPermissionErr"], eve.fromGroup, false);
+					return;
+				}
 				string strMainDice;
 				while (isdigit(strLowerMessage[intMsgCnt])|| (strLowerMessage[intMsgCnt])=='d'|| (strLowerMessage[intMsgCnt])=='+'|| (strLowerMessage[intMsgCnt])=='-') {
 					strMainDice += strLowerMessage[intMsgCnt];
@@ -2122,20 +2123,6 @@ EVE_GroupMsg_EX(eventGroupMsg)
 					else AddMsgToQueue("裁定" + getName(Member.QQID, eve.fromGroup) + "禁言时长" + rdMainDice.FormCompleteString() + "分钟√", eve.fromGroup, false);
 				else AddMsgToQueue("禁言失败×", eve.fromGroup, false);
 			}else AddMsgToQueue("查无此人×", eve.fromGroup, false);
-		}
-		else if (Command == "unfriendly")
-		{
-			string strReply="群内的不良记录成员（30天内被踢出群且拒绝加群）有：\n";
-			int intCnt=0;
-			vector<GroupMemberInfo> MemberList = getGroupMemberList(eve.fromGroup);
-			for (auto it:MemberList) {
-				if (it.NaughtyRecord) {
-					strReply += it.Nick + "(" + to_string(it.QQID)+")\n";
-					intCnt++;
-				}
-			}
-			if(intCnt)AddMsgToQueue(strReply, eve.fromGroup, false);
-			else AddMsgToQueue("群内没有不良记录成员√", eve.fromGroup, false);
 		}
 		return;
 	}
@@ -3905,7 +3892,7 @@ EVE_DiscussMsg_EX(eventDiscussMsg)
 	eve.message_block();
 	const string strNickName = getName(eve.fromQQ, eve.fromDiscuss);
 	string strLowerMessage = eve.message;
-	transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
+	std::transform(strLowerMessage.begin(), strLowerMessage.end(), strLowerMessage.begin(), [](unsigned char c) { return tolower(c); });
 	if (strLowerMessage.substr(intMsgCnt, 3) == "bot")
 	{
 		intMsgCnt += 3;
@@ -5726,10 +5713,7 @@ EVE_System_GroupMemberDecrease(eventGroupMemberDecrease) {
 			}
 			BlackGroup.insert(fromGroup);
 		}
-		if (ruler != getLoginQQ()) {
-			string strInfo = "{\"LoginQQ\":\"" + to_string(getLoginQQ()) + "\",\"fromGroup\":" + to_string(fromGroup) + "\",\"Type\":\"kicked\",\"fromQQ\":\"" + to_string(fromQQ) + "\"";
-			AddMsgToQueue(strInfo, ruler);
-		}
+		string strInfo = "{\"LoginQQ\":\"" + to_string(getLoginQQ()) + "\",\"fromGroup\":" + to_string(fromGroup) + "\",\"Type\":\"kicked\",\"fromQQ\":\"" + to_string(fromQQ) + "\"";
 	}
 	return 0;
 }

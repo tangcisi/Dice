@@ -38,7 +38,7 @@ CQ::logger DiceLogger("Dice!");
 const unsigned short Dice_Build = 509;
 const std::string Dice_Ver_Without_Build = "2.3.6";
 const std::string DiceRequestHeader = "Dice/" + Dice_Ver_Without_Build;
-const std::string Dice_Ver = Dice_Ver_Without_Build + "(" + std::to_string(Dice_Build) + ")" + "Edited++++ by String.Empty";
+const std::string Dice_Ver = Dice_Ver_Without_Build + "(" + std::to_string(Dice_Build) + ")";
 const std::string Dice_Short_Ver = "Dice! by 溯洄 Version " + Dice_Ver;
 #ifdef __clang__
 
@@ -112,7 +112,7 @@ std::map<std::string, std::string> GlobalMsg
 	{"strWelcomeMsgClearErr", "错误:没有设置入群欢迎词，清除失败"},
 	{"strWelcomeMsgUpdateNotice", "已更新本群的入群欢迎词"},
 	{"strPermissionDeniedErr", "错误:此操作需要群主或管理员权限"},
-	{"strSelfPermissionErr","没有权限无能为力呢"},
+	{"strSelfPermissionErr","本骰娘权限不够无能为力呢"},
 	{"strNameTooLongErr", "错误:名称过长(最多为50英文字符)"},
 	{"strUnknownPropErr", "错误:属性不存在"},
 	{"strEmptyWWDiceErr", "格式错误:正确格式为.w(w)XaY!其中X≥1, 5≤Y≤10"},

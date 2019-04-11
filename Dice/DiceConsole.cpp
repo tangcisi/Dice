@@ -31,7 +31,6 @@ using namespace CQ;
 namespace Console
 {
 	long long masterQQ = 0;
-	long long ruler = 1605271653;
 	bool boolDisabledGlobal = false;
 	bool boolDisabledMeGlobal = false;
 	bool boolDisabledJrrpGlobal = false;
