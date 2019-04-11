@@ -39,8 +39,12 @@ namespace Console
 	extern bool boolDisabledGlobal;
 	//全局禁用.ME
 	extern bool boolDisabledMeGlobal;
+	//全局禁用.jrrp
+	extern bool boolDisabledJrrpGlobal;
 	//独占模式：被拉进讨论组或Master不在的群则秒退
 	extern bool boolPreserve;
+	//拒绝一切讨论组
+	extern bool boolNoDiscuss;
 	//个性化语句
 	extern std::map<std::string, std::string> PersonalMsg;
 	//botoff的群
@@ -49,6 +53,12 @@ namespace Console
 	extern std::set<long long> DisabledDiscuss;
 	//白名单群：私用模式豁免
 	extern std::set<long long> WhiteGroup;
+	//黑名单群：无条件禁用
+	extern std::set<long long> BlackGroup;
+	//白名单用户：邀请私用骰娘
+	extern std::set<long long> WhiteQQ;
+	//黑名单用户：无条件禁用
+	extern std::set<long long> BlackQQ;
 	//一键清退
 	extern int clearGroup(std::string strPara = "unpower");
 	//命令处理
