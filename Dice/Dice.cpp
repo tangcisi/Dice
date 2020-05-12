@@ -191,7 +191,8 @@ EVE_Enable(eventEnable)
 		console.loadNotice();
 		console.save();
 	}
-	//读取聊天列表
+	//读取用户记录
+	mkDir("DiceData\\user");
 	if (loadBFile("DiceData\\user\\UserConf.RDconf", UserList) < 1) {
 		map<long long, int>DefaultDice;
 		if (loadFile(strFileLoc + "Default.RDconf", DefaultDice) > 0)
@@ -364,6 +365,7 @@ EVE_Enable(eventEnable)
 	threads(ConsoleTimer);
 	threads(warningHandler);
 	threads(frqHandler);
+	sch.start();
 	//骰娘网络
 	getDiceList();
 	Cloud::update();
@@ -737,6 +739,7 @@ EVE_Disable(eventDisable)
 	Enabled = false;
 	threads = {};
 	dataBackUp();
+	sch.end();
 	fmt.reset();
 	gm.reset();
 	PList.clear();

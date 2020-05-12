@@ -220,6 +220,7 @@
     <ClCompile Include="DiceMod.cpp" />
     <ClCompile Include="DiceMsgSend.cpp" />
     <ClCompile Include="DiceNetwork.cpp" />
+    <ClCompile Include="DiceSchedule.cpp" />
     <ClCompile Include="DiceSensitive.cpp" />
     <ClCompile Include="DiceSession.cpp" />
     <ClCompile Include="DiceUpdate.cpp" />
@@ -264,9 +265,11 @@
     <ClInclude Include="DiceConsole.h" />
     <ClInclude Include="DiceEvent.h" />
     <ClInclude Include="DiceFile.hpp" />
+    <ClInclude Include="DiceJob.h" />
     <ClInclude Include="DiceMod.h" />
     <ClInclude Include="DiceMsgSend.h" />
     <ClInclude Include="DiceNetwork.h" />
+    <ClInclude Include="DiceSchedule.h" />
     <ClInclude Include="DiceSensitive.h" />
     <ClInclude Include="DiceSession.h" />
     <ClInclude Include="DiceTrie.h" />
@@ -294,4 +297,9 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties app_1json__JsonSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
