@@ -5,6 +5,7 @@
 #include <fstream>
 #include "DiceMsgSend.h"
 #include "ManagerSystem.h"
+#include "StrExtern.hpp"
 #include "DiceFile.hpp"
 
 int mkDir(const std::string& dir) {
@@ -20,11 +21,15 @@ int clrDir(std::string dir, const std::set<std::string>& exceptList) {
 	std::error_code err;
 	for (const auto& p : std::filesystem::directory_iterator(dir, err))
 	{
-		if (!p.is_directory() && p.path().filename().string().length() >= 36 && !exceptList.count(p.path().filename().string()))
+		if (p.is_regular_file())
 		{
-			std::error_code err2;
-			std::filesystem::remove(p.path(), err2);
-			if (!err2) nCnt++;
+			std::string path = convert_w2a(p.path().filename().wstring().c_str());
+			if (path.length() >= 36 && !exceptList.count(path))
+			{
+				std::error_code err2;
+				std::filesystem::remove(p.path(), err2);
+				if (!err2) nCnt++;
+			}
 		}
 	}
 	return (err ? err.value() : nCnt);
@@ -73,7 +78,7 @@ string printLine(string s) {
 	return s;
 }
 
-[[deprecated]] bool fscan(std::ifstream& fin, std::string& t) {
+bool fscan(std::ifstream& fin, std::string& t) {
 	std::string val;
 	if (fin >> val) {
 		while (val.find("{space}") != std::string::npos)val.replace(val.find("{space}"), 7, " ");
@@ -157,23 +162,30 @@ ofstream& operator<<(ofstream& fout, const Chat& grp) {
 	return fout;
 }
 
-int listDir(string dir, set<string>& files, bool isSub, string subdir) {
-	_finddata_t file;
-	long lf = _findfirst((dir + subdir + "*").c_str(), &file);
-	if (lf < 0)return -1;
+template<typename T>
+int _listDir(const string& dir, vector<std::filesystem::path>& files) noexcept
+{
 	int intFile = 0;
-	std::set<std::string> dirs;
-	do {
-		//±éÀúÎÄ¼þ
-		if (!strcmp(file.name, ".") || !strcmp(file.name, ".."))continue;
-		if (file.attrib == _A_SUBDIR)dirs.insert(file.name);
-		else {
-			files.insert(subdir + file.name);
+	std::error_code err;
+	for (const auto& file : T(dir, err))
+	{
+		if (file.is_regular_file())
+		{
 			intFile++;
+			files.push_back(file.path());
 		}
-	} while (!_findnext(lf, &file));
-	if (isSub)for (auto &it : dirs) {
-		listDir(dir, files, true, subdir + it + "\\");
 	}
-	return intFile;
+	return err ? -1 : intFile;
+}
+
+int listDir(const string& dir, vector<std::filesystem::path>& files, bool isSub) noexcept
+{
+	if (isSub)
+	{
+		return _listDir<std::filesystem::recursive_directory_iterator>(dir, files);
+	}
+	else
+	{
+		return _listDir<std::filesystem::directory_iterator>(dir, files);
+	}
 }

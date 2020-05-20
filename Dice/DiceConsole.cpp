@@ -20,10 +20,10 @@
  * You should have received a copy of the GNU Affero General Public License along with this
  * program. If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
 #include <ctime>
 #include <queue>
 #include <mutex>
+#include <chrono>
 #include "DiceConsole.h"
 #include "GlobalVar.h"
 #include "ManagerSystem.h"
@@ -129,7 +129,7 @@ int Console::log(std::string strMsg, int note_lv, string strTime) {
 void Console::newMaster(long long qq) {
 	masterQQ = qq; 
 	getUser(qq).trust(5); 
-	setNotice({ qq,CQ::Private }, 0b111111); 
+	setNotice({ qq,CQ::msgtype::Private }, 0b111111);
 	save(); 
 	AddMsgToQueue(getMsg("strNewMaster"), qq); 
 }
@@ -150,11 +150,11 @@ void  Console::loadNotice() {
 			for (auto& it : sChat) {
 				console.setNotice(it, 0b11011);
 			}
-		console.setNotice({ 863062599, Group }, 0b100000);
-		console.setNotice({ 192499947, Group }, 0b100000);
-		console.setNotice({ 754494359, Group }, 0b100000);
+		console.setNotice({ 863062599, msgtype::Group }, 0b100000);
+		console.setNotice({ 192499947, msgtype::Group }, 0b100000);
+		console.setNotice({ 754494359, msgtype::Group }, 0b100000);
 		for (auto& [ct, lv] : NoticeList) {
-			if (ct.second) {
+			if (ct.second != msgtype::Private) {
 				chat(ct.first).set("许可使用").set("免清").set("免黑");
 			}
 		}
@@ -173,8 +173,8 @@ std::map<long long, long long> mDiceList;
 //程序启动时间
 long long llStartTime = clock();
 	//当前时间
-	SYSTEMTIME stNow = { 0 };
-	SYSTEMTIME stTmp = { 0 };
+	SYSTEMTIME stNow{};
+	SYSTEMTIME stTmp{};
 std::string printSTNow() {
 	GetLocalTime(&stNow);
 	return printSTime(stNow);
@@ -184,7 +184,7 @@ std::string printDate() {
 }
 std::string printDate(time_t tt) {
 	tm t;
-	if (!tt || localtime_s(&t, &tt))return "????-??-??";
+	if (!tt || localtime_s(&t, &tt))return "\?\?\?\?-\?\?-\?\?";
 	return to_string(t.tm_year + 1900) + "-" + to_string(t.tm_mon + 1) + "-" + to_string(t.tm_mday);
 }
 	//上班时间
@@ -220,11 +220,11 @@ std::string printSTime(SYSTEMTIME st){
 	string printChat(chatType ct) {
 		switch (ct.second)
 		{
-		case Private:
+		case msgtype::Private:
 			return printQQ(ct.first);
-		case Group:
+		case msgtype::Group:
 			return printGroup(ct.first);
-		case Discuss:
+		case msgtype::Discuss:
 			return "讨论组(" + to_string(ct.first) + ")";
 		default:
 			break;

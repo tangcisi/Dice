@@ -27,41 +27,39 @@
 #include "CQLogger.h"
 #include <map>
 #include "STLExtern.hpp"
-#include "BotEnvironment.h"
 
  /*
   * 版本信息
   * 请勿修改Dice_Build, Dice_Ver_Without_Build，DiceRequestHeader以及Dice_Ver常量
   * 请修改Dice_Short_Ver或Dice_Full_Ver常量以达到版本自定义
   */
-const unsigned short Dice_Build = 560u;
-inline const std::string Dice_Ver_Without_Build = "2.4.0alpha";
-constexpr auto DiceRequestHeader = "Dice/2.4.0ALPHA";
+const unsigned short Dice_Build = 561u;
+inline const std::string Dice_Ver_Without_Build = "2.4.0beta";
+constexpr auto DiceRequestHeader = "Dice/2.4.0BETA";
 inline const std::string Dice_Ver = Dice_Ver_Without_Build + "(" + std::to_string(Dice_Build) + ")";
 inline const std::string Dice_Short_Ver = "Dice! by 溯洄 Shiki Ver " + Dice_Ver;
 
 #ifdef __clang__
 
 #ifdef _MSC_VER
-const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + __clang_version__ + " MSVC " + std::to_string(_MSC_FULL_VER) + " " + __DATE__ + " " + __TIME__;
+const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + std::to_string(__clang_major__) + "." + std::to_string(__clang_minor__) + "." + std::to_string(__clang_patchlevel__) + " with MSVC " + std::to_string(_MSC_VER) + " " + __DATE__ + " " + __TIME__;
 #elif defined(__GNUC__)
-const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + __clang_version__ + " GNUC " + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__) + " " + __DATE__ + " " + __TIME__;
+const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + std::to_string(__clang_major__) + "." + std::to_string(__clang_minor__) + "." + std::to_string(__clang_patchlevel__) +  " with GNUC " + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__) + " " + __DATE__ + " " + __TIME__;
 #else
-const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + __clang_version__ + " UNKNOWN";
-#endif /*__clang__*/
+const std::string Dice_Full_Ver = Dice_Short_Ver + " [CLANG " + std::to_string(__clang_major__) + "." + std::to_string(__clang_minor__) + "." + std::to_string(__clang_patchlevel__);
+#endif
 
 #else
 
 #ifdef _MSC_VER
-const std::string Dice_Full_Ver = std::string(Dice_Short_Ver) + "[" + __DATE__ + " " + __TIME__;
+const std::string Dice_Full_Ver = std::string(Dice_Short_Ver) + "[MSVC " + std::to_string(_MSC_VER) + " " + __DATE__ + " " + __TIME__;
 #elif defined(__GNUC__)
 const std::string Dice_Full_Ver = Dice_Short_Ver + " [GNUC " + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__) + " " + __DATE__ + " " + __TIME__;
 #else
 const std::string Dice_Full_Ver = Dice_Short_Ver + " [UNKNOWN COMPILER";
-#endif /*__clang__*/
+#endif
 
-#endif /*_MSC_VER*/
-
+#endif
 
 
 
@@ -71,7 +69,12 @@ extern bool Enabled;
 
 // 是否在Mirai环境中运行
 extern bool Mirai;
+
+// Dice最完整的版本字符串
 extern std::string Dice_Full_Ver_For;
+
+// 可执行文件位置
+extern std::string strModulePath;
 
 // 消息发送线程是否正在运行
 extern bool msgSendThreadRunning;

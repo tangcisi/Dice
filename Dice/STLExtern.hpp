@@ -16,10 +16,10 @@ using std::to_string;
 
 struct less_ci {
 	bool operator()(const string& str1, const string& str2)const {
-		string::const_iterator it1 = str1.begin(), it2 = str2.begin();
-		while (it1 != str1.end() && it2 != str2.end()) {
-			if (tolower(*it1) < tolower(*it2))return true;
-			else if (tolower(*it2) < tolower(*it1))return false;
+		string::const_iterator it1 = str1.cbegin(), it2 = str2.cbegin();
+		while (it1 != str1.cend() && it2 != str2.cend()) {
+			if (tolower(static_cast<unsigned char>(*it1)) < tolower(static_cast<unsigned char>(*it2)))return true;
+			else if (tolower(static_cast<unsigned char> (*it2)) < tolower(static_cast<unsigned char> (*it1)))return false;
 			it1++;
 			it2++;
 		}
@@ -30,8 +30,8 @@ struct less_ci {
 template<typename T>
 class enumap{
 public:
-	typedef typename map<T, int> mapT;
-	typedef typename std::initializer_list<T> initlist;
+	typedef map<T, int> mapT;
+	typedef std::initializer_list<T> initlist;
 	vector<T> ary;
 	mapT mVal;
 	enumap(initlist items) :ary{items} {

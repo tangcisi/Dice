@@ -10,10 +10,14 @@
 #include <map>
 #include <set>
 #include <filesystem>
+#include <unordered_set>
+#include <unordered_map>
 #include <io.h>
 #include <direct.h>
 #include "DiceMsgSend.h"
 #include "DiceXMLTree.h"
+#include "StrExtern.hpp"
+
 
 using std::ifstream;
 using std::ofstream;
@@ -23,6 +27,8 @@ using std::enable_if;
 using std::map;
 using std::multimap;
 using std::set;
+using std::unordered_set;
+using std::unordered_map;
 
 int mkDir(const std::string& dir);
 
@@ -55,7 +61,7 @@ inline bool fscan(std::ifstream & fin, T & t) {
 	else return false;
 }
 //template<>
-[[deprecated]] bool fscan(std::ifstream& fin, std::string& t);
+bool fscan(std::ifstream& fin, std::string& t);
 
 template<class C, bool(C::* U)(std::ifstream&) = &C::load>
 inline bool fscan(std::ifstream& fin, C& obj) {
@@ -173,8 +179,26 @@ int loadFile(std::string strPath, std::set<T>&setTmp) {
 	return -1;
 }
 
+template<typename T>
+int loadFile(std::string strPath, std::unordered_set<T>& setTmp) {
+	std::ifstream fin(strPath);
+	if (fin)
+	{
+		int Cnt = 0;
+		T item;
+		while (fscan(fin, item))
+		{
+			setTmp.insert(item);
+			Cnt++;
+		}
+		return Cnt;
+	}
+	fin.close();
+	return -1;
+}
+
 template<typename T1, typename T2>
-typename int loadFile(std::string strPath, std::map<T1, T2>&mapTmp) {
+int loadFile(std::string strPath, std::map<T1, T2>&mapTmp) {
 	std::ifstream fin(strPath);
 	if (fin)
 	{
@@ -192,7 +216,25 @@ typename int loadFile(std::string strPath, std::map<T1, T2>&mapTmp) {
 }
 
 template<typename T1, typename T2>
-typename void loadFile(std::string strPath, std::multimap<T1,T2>&mapTmp) {
+int loadFile(std::string strPath, std::unordered_map<T1, T2>& mapTmp) {
+	std::ifstream fin(strPath);
+	if (fin)
+	{
+		int Cnt = 0;
+		T1 key;
+		while (fin >> key)
+		{
+			fscan(fin, mapTmp[key]);
+			Cnt++;
+		}
+		return Cnt;
+	}
+	fin.close();
+	return -1;
+}
+
+template<typename T1, typename T2>
+void loadFile(std::string strPath, std::multimap<T1,T2>&mapTmp) {
 	std::ifstream fin(strPath);
 	if (fin)
 	{
@@ -208,6 +250,22 @@ typename void loadFile(std::string strPath, std::multimap<T1,T2>&mapTmp) {
 
 template<typename T, class C, void(C::* U)(std::ifstream&) = &C::readb>
 int loadBFile(std::string strPath, std::map<T, C> & m) {
+	std::ifstream fin(strPath, std::ios::in | std::ios::binary);
+	if (!fin)return -1;
+	int len = fread<int>(fin);
+	int Cnt = 0;
+	T key;
+	C val;
+	while (fin.peek() != EOF && len > Cnt++) {
+		key = fread<T>(fin);
+		m[key].readb(fin);
+	}
+	fin.close();
+	return Cnt;
+}
+
+template<typename T, class C, void(C::* U)(std::ifstream&) = &C::readb>
+int loadBFile(std::string strPath, std::unordered_map<T, C>& m) {
 	std::ifstream fin(strPath, std::ios::in | std::ios::binary);
 	if (!fin)return -1;
 	int len = fread<int>(fin);
@@ -250,7 +308,7 @@ int loadXML(const std::string& strPath, std::map<std::string, C>& m) {
 }
 
 //遍历文件夹
-int listDir(string, set<string>&, bool = false, string subdir = "");
+int listDir(const string& dir, vector<std::filesystem::path>& files, bool isSub = false) noexcept;
 
 template<typename T1, typename T2>
 int _loadDir(int (*load)(const std::string&, T2&) ,const std::string& strDir, T2& tmp, int& intFile, int& intFailure, int& intItem, std::vector<std::string>& files)
@@ -261,9 +319,10 @@ int _loadDir(int (*load)(const std::string&, T2&) ,const std::string& strDir, T2
 		if (p.is_regular_file())
 		{
 			intFile++;
-			int Cnt = load(strDir + p.path().filename().string(), tmp);
+			string path = convert_w2a(p.path().filename().wstring().c_str());
+			int Cnt = load(strDir + path, tmp);
 			if (Cnt < 0) {
-				files.push_back(p.path().filename().string());
+				files.push_back(path);
 				intFailure++;
 			}
 			else intItem += Cnt;
@@ -384,6 +443,20 @@ void saveFile(std::string strPath, const map<TKey,TVal>& mTmp) {
 	fout.close();
 }
 
+
+template<typename TKey, typename TVal>
+void saveFile(std::string strPath, const unordered_map<TKey, TVal>& mTmp) {
+	if (clrEmpty(strPath, mTmp))return;
+	std::ofstream fout(strPath);
+	for (const auto& [key, val] : mTmp)
+	{
+		fout << key << "\t";
+		fprint(fout, val);
+		fout << std::endl;
+	}
+	fout.close();
+}
+
 template<typename T, class C, void(C::* U)(std::ofstream&) = &C::writeb>
 void saveBFile(std::string strPath, std::map<T, C>& m) {
 	if (clrEmpty(strPath, m))return;
@@ -396,6 +469,20 @@ void saveBFile(std::string strPath, std::map<T, C>& m) {
 	}
 	fout.close();
 }
+
+template<typename T, class C, void(C::* U)(std::ofstream&) = &C::writeb>
+void saveBFile(std::string strPath, std::unordered_map<T, C>& m) {
+	if (clrEmpty(strPath, m))return;
+	std::ofstream fout(strPath, ios::out | ios::trunc | ios::binary);
+	int len = m.size();
+	fwrite<int>(fout, len);
+	for (auto& [key, val] : m) {
+		fwrite(fout, key);
+		fwrite(fout, val);
+	}
+	fout.close();
+}
+
 //读取伪xml
 template<class C, std::string(C::* U)() = &C::writet>
 void saveXML(std::string strPath, C& obj) {

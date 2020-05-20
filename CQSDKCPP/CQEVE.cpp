@@ -17,10 +17,6 @@ void EVE::message_block() { _EVEret = Msg_Blocked; }
 
 bool EVEMsg::isSystem() const { return fromQQ == 1000000; }
 
-Font::Font(const int Font)
-{
-	//RtlMoveMemory(static_cast<void*>(this), reinterpret_cast<const void *>(Font), 20);
-}
 
 EVEMsg::EVEMsg(const int subType, const int msgId, const long long fromQQ, std::string message, const int font)
 	: subType(subType), msgId(msgId), fromQQ(fromQQ), message(move(message)), font(font)
@@ -134,9 +130,9 @@ bool EVEPrivateMsg::fromGroup() const { return subType == 2; }
 //来自讨论组临时
 bool EVEPrivateMsg::fromDiscuss() const { return subType == 3; }
 
-msg EVEPrivateMsg::sendMsg() const { return msg(fromQQ, Private); }
-msg EVEGroupMsg::sendMsg() const { return msg(fromGroup, Group); }
-msg EVEDiscussMsg::sendMsg() const { return msg(fromQQ, Discuss); }
+msg EVEPrivateMsg::sendMsg() const { return msg(fromQQ, msgtype::Private); }
+msg EVEGroupMsg::sendMsg() const { return msg(fromGroup, msgtype::Group); }
+msg EVEDiscussMsg::sendMsg() const { return msg(fromQQ, msgtype::Discuss); }
 
 int EVEPrivateMsg::sendMsg(const char* msg) const { return sendPrivateMsg(fromQQ, msg); }
 int EVEPrivateMsg::sendMsg(const std::string& msg) const { return sendPrivateMsg(fromQQ, msg); }
