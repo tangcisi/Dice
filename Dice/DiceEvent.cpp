@@ -1619,12 +1619,12 @@ int FromMsg::DiceReply() {
 					DeckSet = CardDeck::mPublicDeck[strVar["deck_name"]];
 				break;
 			case 2: {
-				int intSize = stoi(strVar["key"]) + 1;
+				int intSize = stoi(strVar["deck_name"]) + 1;
 				if (intSize == 0) {
 					reply(GlobalMsg["strNumCannotBeZero"]);
 					return 1;
 				}
-				strVar["key"] = "数列1至" + strVar["key"];
+				strVar["deck_name"] = "数列1至" + strVar["deck_name"];
 				while (--intSize) {
 					DeckSet.push_back(to_string(intSize));
 				}
@@ -1641,7 +1641,7 @@ int FromMsg::DiceReply() {
 			else {
 				CardDeck::mGroupDeck[fromGroup] = DeckSet;
 			}
-			reply(GlobalMsg["strDeckProSet"], { strVar["key"] });
+			reply(GlobalMsg["strDeckProSet"], { strVar["deck_name"] });
 			return 1;
 		}
 		else if (strPara == "reset") {
@@ -2423,12 +2423,12 @@ int FromMsg::DiceReply() {
 		while (isspace(static_cast<unsigned char>(strMsg[intMsgCnt])))
 			intMsgCnt++;
 		strVar["new_nick"] = strip(strMsg.substr(intMsgCnt));
+		filter_CQcode(strVar["new_nick"]);
 		if (strVar["new_nick"].length() > 50) {
 			reply(GlobalMsg["strNameTooLongErr"]);
 			return 1;
 		}
-		if (!strVar["new_nick"].empty())
-		{
+		if (!strVar["new_nick"].empty()) {
 			getUser(fromQQ).setNick(fromGroup, strVar["new_nick"]);
 			reply(GlobalMsg["strNameSet"], { strVar["nick"], strVar["new_nick"] });
 		}
@@ -2536,6 +2536,7 @@ int FromMsg::DiceReply() {
 		}
 		else if (strOption == "new") {
 			strVar["char"] = strip(readRest());
+			filter_CQcode(strVar["char"]);
 			switch (pl.newCard(strVar["char"], fromGroup)) {
 			case 0:
 				strVar["type"] = pl[fromGroup].Type;
@@ -2563,6 +2564,7 @@ int FromMsg::DiceReply() {
 		}
 		else if (strOption == "build") {
 			strVar["char"] = strip(readRest());
+			filter_CQcode(strVar["char"]);
 			switch (pl.buildCard(strVar["char"], false, fromGroup)) {
 			case 0:
 				strVar["show"] = pl[strVar["char"]].show(true);
@@ -2590,6 +2592,7 @@ int FromMsg::DiceReply() {
 		}
 		else if (strOption == "nn") {
 			strVar["new_name"] = strip(readRest());
+			filter_CQcode(strVar["char"]);
 			if (strVar["new_name"].empty()) {
 				reply(GlobalMsg["strPCNameEmpty"]);
 				return 1;
@@ -2643,6 +2646,7 @@ int FromMsg::DiceReply() {
 		}
 		else if (strOption == "cpy") {
 			string strName = strip(readRest());
+			filter_CQcode(strName);
 			strVar["char1"] = strName.substr(0, strName.find('='));
 			strVar["char2"] = (strVar["char1"].length() < strName.length() - 1) ? strip(strName.substr(strVar["char1"].length() + 1)) : pl[fromGroup].Name;
 			switch (pl.copyCard(strVar["char1"], strVar["char2"], fromGroup)) {
@@ -3622,15 +3626,15 @@ bool FromMsg::DiceFilter() {
 		strMsg.erase(strMsg.begin());
 	init(strMsg);
 	bool isOtherCalled = false;
-	string strAt = "[CQ:at,qq=" + to_string(getLoginQQ()) + "]";
-	while (strMsg.substr(0, 6) == "[CQ:at")
+	string strAt = CQ_AT + to_string(getLoginQQ()) + "]";
+	while (strMsg.find(CQ_AT) == 0)
 	{
-		if (strMsg.substr(0, strAt.length()) == strAt)
+		if (strMsg.find(strAt) == 0)
 		{
 			strMsg = strMsg.substr(strAt.length());
 			isCalled = true;
 		}
-		else if (strMsg.substr(0, 14) == "[CQ:at,qq=all]") {
+		else if (strMsg.find("[CQ:at,qq=all]") == 0) {
 			strMsg = strMsg.substr(14);
 			isCalled = true;
 		}

@@ -112,7 +112,7 @@ std::map<std::string, std::string> GlobalMsg
 	{"strWhiteQQDenied","你不是{self}信任的用户×"},
 	{"strWhiteGroupDenied","本群聊不在白名单中×"},
 	{"strDeckProNew","已新建自定义牌堆√"},
-	{"strDeckProSet","已将{key}设置为默认牌堆√"},
+	{"strDeckProSet","已将{deck_name}设置为默认牌堆√"},
 	{"strDeckProClr","已删除默认牌堆√"},
 	{"strDeckProNull","默认牌堆不存在!"},
 	{"strDeckTmpReset","已重置卡牌√"},
