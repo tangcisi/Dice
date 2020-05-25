@@ -149,15 +149,10 @@ public:
 	}
 };
 
-inline map<string, CardTemp>mCardTemplet = {
-	{"COC7",{"COC7",SkillNameReplace,BasicCOC7,InfoCOC7,AutoFillCOC7,mVariableCOC7,ExpressionCOC7,SkillDefaultVal,{
-		{"",CardBuild({BuildCOC7},CardDeck::mPublicDeck["随机姓名"],{})},
-		{"bg",CardBuild({
-			{"性别","{性别}"},{"年龄","7D6+8"},{"职业","{调查员职业}"},{"个人描述","{个人描述}"},{"重要之人","{重要之人}"},{"思想信念","{思想信念}"},{"意义非凡之地","{意义非凡之地}"},{"宝贵之物","{宝贵之物}"},{"特质","{调查员特点}"}
-		},CardDeck::mPublicDeck["随机姓名"],{})}
-	}}},
-	{"BRP",{}}
-};
+
+map<string, CardTemp>& getmCardTemplet();
+
+
 
 class CharaCard {
 private:
@@ -168,7 +163,7 @@ public:
 	map<string, string>Info{};
 	map<string, string>DiceExp{};
 	string Note;
-	const CardTemp* pTemplet = &mCardTemplet[Type];
+	const CardTemp* pTemplet = &getmCardTemplet()[Type];
 	CharaCard(){}
 	CharaCard(string name, string type = "COC7") :Name(name), Type(type){}
 	short call(string &key){
@@ -186,14 +181,16 @@ public:
 		else return 0;
 	}
 	//表达式转义
-	string escape(string exp){
+	string escape(string exp, set<string>sRef){
 		if (exp[0] == '&') {
 			string key = exp.substr(1);
+			if (sRef.count(key))return "";
 			return getExp(key);
 		}
 		int intCnt = 0, lp = 0, rp = 0;
 		while ((lp = exp.find('[', intCnt)) != std::string::npos && (rp = exp.find(']', lp)) != std::string::npos) {
 			string strProp = exp.substr(lp + 1, rp - lp - 1);
+			if (sRef.count(strProp))return "";
 			string val = getExp(strProp);
 			exp.replace(exp.begin() + lp, exp.begin() + rp + 1, val);
 			intCnt = lp + val.length();
@@ -201,11 +198,12 @@ public:
 		return exp;
 	}
 	//求key对应掷骰表达式
-	string getExp(string& key){
+	string getExp(string& key, set<string>sRef = {}) {
+		sRef.insert(key);
 		std::map<string, string>::const_iterator exp = DiceExp.find(key);
-		if (exp != DiceExp.end()) return escape(exp->second);
+		if (exp != DiceExp.end()) return escape(exp->second, sRef);
 		exp = pTemplet->mExpression.find(key);
-		if (exp != pTemplet->mExpression.end()) return escape(exp->second);
+		if (exp != pTemplet->mExpression.end()) return escape(exp->second, sRef);
 		key = standard(key);
 		std::map<string, short>::const_iterator val = Attr.find(key);
 		if (val != Attr.end())return to_string(val->second);
@@ -283,8 +281,8 @@ public:
 	}
 	int set(string key, short val) {
 		key = standard(key);
-		if (val == pTemplet->defaultSkill.find(key)->second && !Attr.count(key)) {
-			Attr.erase(key);
+		if (pTemplet->defaultSkill.count(key) && val == pTemplet->defaultSkill.find(key)->second) {
+			if (Attr.count(key)) Attr.erase(key);
 			return -1;
 		}
 		Attr[key] = val;
@@ -481,7 +479,7 @@ public:
 			}
 			tag = fread<string>(fin);
 		}
-		pTemplet = mCardTemplet.count(Type) ? &mCardTemplet[Type] : &mCardTemplet["COC7"];
+		pTemplet = getmCardTemplet().count(Type) ? &getmCardTemplet()[Type] : &getmCardTemplet()["COC7"];
 	}
 };
 
@@ -530,7 +528,7 @@ public:
 			s.erase(s.begin(), s.begin() + Cnt + 1);
 			if (type == "COC")type = "COC7";
 		}
-		else if (mCardTemplet.count(s)) {
+		else if (getmCardTemplet().count(s)) {
 			type = s;
 			s.clear();
 		}
@@ -539,18 +537,18 @@ public:
 			type.erase(type.begin() + Cnt, type.end());
 		}
 		//无效模板
-		if (!mCardTemplet.count(type))return -2;
+		if (!getmCardTemplet().count(type))return -2;
 		if (mNameIndex.count(s))return -4;
 		if (s.find("=") != string::npos)return -6;
 		mCardList[++indexMax] = CharaCard(s, type);
 		CharaCard& card = mCardList[indexMax];
-		CardTemp& temp = mCardTemplet[type];
+		// CardTemp& temp = mCardTemplet[type];
 		while(!vOption.empty()) {
 			string para = vOption.top();
 			vOption.pop();
 			card.build(para);
 			if (card.Name.empty()) {
-				std::vector<string>list = mCardTemplet[type].mBuildOption[para].vNameList;
+				std::vector<string>list = getmCardTemplet()[type].mBuildOption[para].vNameList;
 				while (!list.empty()) {
 					s = CardDeck::draw(list[0]);
 					if (mNameIndex.count(s))list.erase(list.begin());
@@ -562,7 +560,7 @@ public:
 			}
 		}
 		if (card.Name.empty()) {
-			std::vector<string>list = mCardTemplet[type].mBuildOption[""].vNameList;
+			std::vector<string>list = getmCardTemplet()[type].mBuildOption[""].vNameList;
 			while (!list.empty()) {
 				s = CardDeck::draw(list[0]);
 				if (mNameIndex.count(s))list.erase(list.begin());

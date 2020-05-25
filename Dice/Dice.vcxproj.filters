@@ -93,9 +93,6 @@
     <ClCompile Include="DiceFile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="DiceSensitive.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CharacterCard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -115,6 +112,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DiceSchedule.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="strExtern.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Jsonio.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -248,12 +251,6 @@
     <ClInclude Include="DiceFile.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="DiceTrie.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DiceSensitive.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="DiceMod.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -277,13 +274,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="CQP.lib">
-      <Filter>资源文件</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.json">
       <Filter>资源文件</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="CQP.lib">
+      <Filter>资源文件</Filter>
+    </Library>
   </ItemGroup>
 </Project>

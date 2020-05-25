@@ -30,7 +30,6 @@ public:
 	bool isMasterMode = false;
 	long long masterQQ = 0;
 	long long DiceMaid = 0;
-	Console(string path) :strPath(path) {}
 	friend void ConsoleTimer();
 	friend class FromMsg;
 	friend class DiceJob;
@@ -51,13 +50,13 @@ public:
 		if (sMin.empty())return { stoi(sHour),0 };
 		return { stoi(sHour),stoi(sMin) };
 	}
-	static const std::map<std::string, int>intDefault;
+	static const std::map<std::string, int, less_ci>intDefault;
 	//通知列表 1-日常活动/2-提醒事件/4-接收消息/8-警告内容/16-用户推送/32-骰娘广播
 	int log(std::string msg, int lv, std::string strTime = "");
 	operator bool()const{ return isMasterMode && masterQQ;}
 	long long master()const { return masterQQ; }
 	void newMaster(long long);
-	void killMaster() { rmNotice({ masterQQ,CQ::Private }); masterQQ = 0; save(); }
+	void killMaster() { rmNotice({ masterQQ, CQ::msgtype::Private }); masterQQ = 0; save(); }
 	int operator[](const char* key)const {
 		auto it = intConf.find(key);
 		if (it != intConf.end() || (it = intDefault.find(key)) != intDefault.end())return it->second;
@@ -68,6 +67,7 @@ public:
 	ResList listClock()const;
 	ResList listNotice()const;
 	int showNotice(chatType ct)const;
+	void setPath(std::string path) { strPath = std::move(path); }
 	void set(std::string key, int val) {intConf[key] = val;	save();}
 	void addNotice(chatType ct, int lv);
 	void redNotice(chatType ct, int lv);
@@ -120,7 +120,7 @@ public:
 	void saveNotice();
 private:
 	string strPath;
-	std::map<std::string, int>intConf;
+	std::map<std::string, int, less_ci>intConf;
 	std::multimap<Clock, ClockEvent>mWorkClock{};
 	std::map<chatType, int> NoticeList{};
 };

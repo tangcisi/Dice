@@ -20,10 +20,10 @@
  * You should have received a copy of the GNU Affero General Public License along with this
  * program. If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
 #include <ctime>
 #include <queue>
 #include <mutex>
+#include <chrono>
 #include "DiceConsole.h"
 #include "GlobalVar.h"
 #include "ManagerSystem.h"
@@ -35,7 +35,7 @@
 using namespace std;
 using namespace CQ;
 
-const std::map<std::string, int>Console::intDefault{
+const std::map<std::string, int, less_ci>Console::intDefault{
 {"DisabledGlobal",0},{"DisabledBlock",0},{"DisabledListenAt",1},
 {"DisabledMe",1},{"DisabledJrrp",0},{"DisabledDeck",1},{"DisabledDraw",0},{"DisabledSend",0},
 {"Private",0},{"CheckGroupLicense",0},{"LeaveDiscuss",0},
@@ -111,7 +111,7 @@ void Console::rmNotice(chatType ct) {
 	saveNotice();
 }
 int Console::log(std::string strMsg, int note_lv, string strTime) {
-	ofstream fout(string("DiceData\\audit\\log") + to_string(DiceMaid) + "_" + printDate() + ".txt", ios::out | ios::app);
+	ofstream fout(string(DiceDir + "\\audit\\log") + to_string(DiceMaid) + "_" + printDate() + ".txt", ios::out | ios::app);
 	fout << strTime << "\t" << note_lv << "\t" << printLine(strMsg) << std::endl;
 	fout.close();
 	int Cnt = 0;
@@ -129,7 +129,7 @@ int Console::log(std::string strMsg, int note_lv, string strTime) {
 void Console::newMaster(long long qq) {
 	masterQQ = qq; 
 	getUser(qq).trust(5); 
-	setNotice({ qq,CQ::Private }, 0b111111); 
+	setNotice({ qq,CQ::msgtype::Private }, 0b111111);
 	save(); 
 	AddMsgToQueue(getMsg("strNewMaster"), qq); 
 }
@@ -139,31 +139,31 @@ void Console::reset() {
 	NoticeList.clear();
 }
 void  Console::loadNotice() {
-	if (loadFile("DiceData\\conf\\NoticeList.txt", NoticeList) < 1) {
+	if (loadFile(DiceDir + "\\conf\\NoticeList.txt", NoticeList) < 1) {
 		std::set<chatType>sChat;
 		if (loadFile((string)getAppDirectory() + "MonitorList.RDconf", sChat) > 0)
 			for (auto& it : sChat) {
 				console.setNotice(it, 0b100000);
 			}
 		sChat.clear();
-		if (loadFile("DiceData\\conf\\RecorderList.RDconf", sChat) > 0)
+		if (loadFile(DiceDir + "\\conf\\RecorderList.RDconf", sChat) > 0)
 			for (auto& it : sChat) {
 				console.setNotice(it, 0b11011);
 			}
-		console.setNotice({ 863062599, Group }, 0b100000);
-		console.setNotice({ 192499947, Group }, 0b100000);
-		console.setNotice({ 754494359, Group }, 0b100000);
+		console.setNotice({ 863062599, msgtype::Group }, 0b100000);
+		console.setNotice({ 192499947, msgtype::Group }, 0b100000);
+		console.setNotice({ 754494359, msgtype::Group }, 0b100000);
 		for (auto& [ct, lv] : NoticeList) {
-			if (ct.second) {
+			if (ct.second != msgtype::Private) {
 				chat(ct.first).set("许可使用").set("免清").set("免黑");
 			}
 		}
 	}
 }
 void Console::saveNotice() {
-	saveFile("DiceData\\conf\\NoticeList.txt", NoticeList);
+	saveFile(DiceDir + "\\conf\\NoticeList.txt", NoticeList);
 }
-Console console{"DiceData\\conf\\Console.xml"};
+Console console;
 
 //DiceModManager modules{};
 
@@ -173,8 +173,8 @@ std::map<long long, long long> mDiceList;
 //程序启动时间
 long long llStartTime = clock();
 	//当前时间
-	SYSTEMTIME stNow = { 0 };
-	SYSTEMTIME stTmp = { 0 };
+	SYSTEMTIME stNow{};
+	SYSTEMTIME stTmp{};
 std::string printSTNow() {
 	GetLocalTime(&stNow);
 	return printSTime(stNow);
@@ -184,7 +184,7 @@ std::string printDate() {
 }
 std::string printDate(time_t tt) {
 	tm t;
-	if (!tt || localtime_s(&t, &tt))return "????-??-??";
+	if (!tt || localtime_s(&t, &tt))return "\?\?\?\?-\?\?-\?\?";
 	return to_string(t.tm_year + 1900) + "-" + to_string(t.tm_mon + 1) + "-" + to_string(t.tm_mday);
 }
 	//上班时间
@@ -205,9 +205,10 @@ std::string printSTime(SYSTEMTIME st){
 	//打印用户昵称QQ
 	string printQQ(long long llqq) {
 		string nick = getStrangerInfo(llqq).nick;
+		if (nick.empty())nick = getFriendList()[llqq].nick;
 		while (nick.find(" ") != string::npos)nick.erase(nick.begin() + nick.find(" "), nick.begin() + nick.find(" ") + strlen(" "));
 		while (nick.find(" ") != string::npos)nick.erase(nick.begin() + nick.find(" "), nick.begin() + nick.find(" ") + strlen(" "));
-		return getStrangerInfo(llqq).nick + "(" + to_string(llqq) + ")";
+		return nick + "(" + to_string(llqq) + ")";
 	}
 	//打印QQ群号
 	string printGroup(long long llgroup) {
@@ -219,11 +220,11 @@ std::string printSTime(SYSTEMTIME st){
 	string printChat(chatType ct) {
 		switch (ct.second)
 		{
-		case Private:
+		case msgtype::Private:
 			return printQQ(ct.first);
-		case Group:
+		case msgtype::Group:
 			return printGroup(ct.first);
-		case Discuss:
+		case msgtype::Discuss:
 			return "讨论组(" + to_string(ct.first) + ")";
 		default:
 			break;
@@ -285,6 +286,9 @@ bool operator<(const Console::Clock clock, const SYSTEMTIME& st) {
 					}
 				}
 				//整点事件
+				if (stNow.wMinute % 10 == 0) {
+					Cloud::update();
+				}
 				if (stNow.wMinute % 30 == 0) {
 					if (console["SystemAlarmCPU"]) {
 						long long perCPU = getWinCpuUsage();
